@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kisko message kiya</title>
+<title>Who I've messaged</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
@@ -69,7 +69,7 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 20px 96px; }
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 40px 20px 96px; }
 
   .masthead {
     display: flex; align-items: flex-start; gap: 18px;
@@ -86,7 +86,7 @@
     margin: 0 0 6px;
   }
   .tally { margin: 0; color: var(--ink-soft); max-width: 54ch; font-variant-numeric: tabular-nums; }
-  .note { margin: 6px 0 0; font-size: 13px; color: var(--ink-soft); }
+  .note { margin: 6px 0 0; font-size: 13px; color: var(--ink-soft); max-width: 60ch; }
 
   .icon-btn {
     display: inline-flex; align-items: center; justify-content: center;
@@ -118,26 +118,28 @@
   .btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
   .btn-danger { color: var(--danger); background: transparent; }
   .btn-danger:hover { border-color: var(--danger); }
-  button:focus-visible, input:focus-visible, select:focus-visible {
+  .btn-small { padding: 6px 12px; font-size: 13px; }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
     outline: 2px solid var(--focus); outline-offset: 2px;
   }
 
   .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-  input[type="search"], input[type="text"], select {
+  input[type="search"], input[type="text"], input[type="url"], select, textarea {
     font: inherit; color: var(--ink);
     background: var(--surface);
     border: 1px solid var(--line); border-radius: 8px;
     padding: 9px 11px; min-width: 0;
   }
-  input::placeholder { color: var(--ink-soft); opacity: .85; }
+  input::placeholder, textarea::placeholder { color: var(--ink-soft); opacity: .85; }
   #search { flex: 1 1 240px; }
   #roleFilter { flex: 0 1 260px; max-width: 100%; }
+  #filterCustom { flex: 1 1 220px; }
 
   .ledger {
     border: 1px solid var(--line); border-radius: 12px;
     background: var(--surface); box-shadow: var(--shadow); overflow: hidden;
   }
-  .grid { display: grid; grid-template-columns: 1.05fr 1.15fr .95fr 84px; gap: 14px; align-items: center; }
+  .grid { display: grid; grid-template-columns: 1.05fr 1.05fr .9fr 124px 84px; gap: 14px; align-items: center; }
   .head { padding: 11px 16px; border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: 13px; font-weight: 500; }
   .head span:last-child { text-align: right; }
   .row { padding: 13px 16px; border-bottom: 1px solid var(--line-soft); }
@@ -145,6 +147,8 @@
   .row .company { font-weight: 600; overflow-wrap: anywhere; }
   .row .person { overflow-wrap: anywhere; }
   .row .acts { display: flex; gap: 6px; justify-content: flex-end; }
+  .row a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); }
+  .row a:hover { color: var(--accent-2); border-bottom-color: var(--accent); }
   .chip {
     display: inline-block; max-width: 100%;
     padding: 4px 10px; border-radius: 999px;
@@ -154,6 +158,18 @@
   }
   .chip.custom { background: var(--line-soft); color: var(--ink-soft); }
   .muted { color: var(--ink-soft); }
+
+  .status {
+    font: inherit; font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 11px 4px 9px; border-radius: 999px;
+    border: 1px solid var(--line); background: transparent; color: var(--ink-soft);
+    cursor: pointer; line-height: 1.35;
+  }
+  .status .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid currentColor; flex: 0 0 auto; }
+  .status.yes { border-color: var(--accent); color: var(--accent-2); }
+  .status.yes .dot { background: var(--accent); border-color: var(--accent); }
+  .status:hover { border-color: var(--accent); }
 
   .empty { padding: 44px 20px; text-align: center; color: var(--ink-soft); }
   .empty p { margin: 0 0 14px; }
@@ -169,14 +185,46 @@
   .add-row:hover { background: var(--line-soft); }
 
   .editor { padding: 16px; background: var(--line-soft); border-bottom: 1px solid var(--line); }
-  .editor .fields { display: grid; grid-template-columns: 1.05fr 1.15fr .95fr; gap: 10px; }
-  .editor input[type="text"], .editor select { width: 100%; }
-  .editor .full { grid-column: 1 / -1; }
+  .editor .fields { display: grid; grid-template-columns: 1.05fr 1.05fr .95fr; gap: 10px; }
+  .editor input, .editor select { width: 100%; }
+  .f-company   { grid-area: 1 / 1; }
+  .f-companyUrl{ grid-area: 2 / 1; }
+  .f-role      { grid-area: 1 / 2; }
+  .f-customRole{ grid-area: 2 / 2; }
+  .f-name      { grid-area: 1 / 3; }
+  .f-nameUrl   { grid-area: 2 / 3; }
+  .f-accept    { grid-column: 1 / -1; }
+  .check {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: 14px; cursor: pointer; padding: 2px 0;
+  }
+  .check input { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; }
   .editor .bar { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
   .editor .bar .spacer { flex: 1 1 auto; }
   .err { color: var(--danger); font-size: 13px; margin: 8px 0 0; }
 
-  footer.hint { margin-top: 22px; font-size: 13px; color: var(--ink-soft); text-align: center; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 22px; }
+
+  .panel {
+    margin-top: 16px; padding: 18px;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--surface); box-shadow: var(--shadow);
+  }
+  .panel h2 {
+    font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+    font-size: 26px; margin: 0 0 6px; line-height: 1.15;
+  }
+  .panel p { margin: 0 0 10px; color: var(--ink-soft); max-width: 68ch; }
+  .panel ol { margin: 0 0 12px; padding-left: 20px; color: var(--ink-soft); max-width: 68ch; }
+  .panel li { margin-bottom: 6px; }
+  .panel pre {
+    margin: 0 0 12px; padding: 11px 13px; overflow-x: auto;
+    background: var(--line-soft); border-radius: 8px;
+    font-size: 12.5px; line-height: 1.45; color: var(--ink);
+  }
+  .panel textarea { width: 100%; min-height: 128px; resize: vertical; font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .panel .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .panel .bar .spacer { flex: 1 1 auto; }
 
   #toast {
     position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
@@ -187,19 +235,21 @@
   #toast.on { opacity: 1; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-  @media (max-width: 720px) {
+  @media (max-width: 860px) {
     .wrap { padding: 26px 14px 80px; }
     .head { display: none; }
     .grid.row {
       grid-template-columns: 1fr auto;
-      grid-template-areas: "company acts" "role role" "person person";
-      gap: 6px 10px;
+      grid-template-areas: "company acts" "role role" "person person" "status status";
+      gap: 7px 10px;
     }
     .row .company { grid-area: company; }
     .row .role    { grid-area: role; }
     .row .person  { grid-area: person; color: var(--ink-soft); }
+    .row .state   { grid-area: status; }
     .row .acts    { grid-area: acts; align-self: start; }
     .editor .fields { grid-template-columns: 1fr; }
+    .editor .fields > * { grid-area: auto !important; }
   }
 </style>
 </head>
@@ -207,72 +257,96 @@
 <main class="wrap">
   <header class="masthead">
     <div class="masthead-text">
-      <h1>Kisko message kiya</h1>
-      <p class="tally" id="tally">Load ho raha hai...</p>
+      <h1>Who I've messaged</h1>
+      <p class="tally" id="tally">Loading…</p>
       <p class="note" id="note" hidden></p>
     </div>
-    <button class="add-big" id="addTop" type="button" title="Naya add karo" aria-label="Naya person add karo">
+    <button class="add-big" id="addTop" type="button" title="Add someone" aria-label="Add a new person">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>
   </header>
 
   <div class="controls">
-    <input type="search" id="search" placeholder="Naam, company ya profession dhoondo" aria-label="Search">
-    <select id="roleFilter" aria-label="Profession se filter karo"></select>
+    <input type="search" id="search" placeholder="Search by name, company or profession" aria-label="Search">
+    <select id="roleFilter" aria-label="Filter by profession"></select>
+    <input type="text" id="filterCustom" placeholder="Type any profession to filter by" aria-label="Custom profession filter" hidden>
   </div>
 
   <section class="ledger" aria-label="Message list">
     <div class="grid head" aria-hidden="true">
-      <span>Company</span><span>Work profession</span><span>Name</span><span>Edit</span>
+      <span>Company</span><span>Work profession</span><span>Name</span><span>Request</span><span>Edit</span>
     </div>
     <div id="rows"></div>
     <button class="add-row" id="addBottom" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      Naya person add karo
+      Add a new person
     </button>
   </section>
 
-  <footer class="hint">Cloud sync (har device se same data) setup karne ka tarika neeche script ke shuru me likha hai.</footer>
+  <div class="toolbar">
+    <button class="btn btn-small" id="cloudBtn" type="button">Cloud sync</button>
+    <button class="btn btn-small" id="exportBtn" type="button">Download backup</button>
+    <button class="btn btn-small" id="importBtn" type="button">Restore backup</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+  </div>
+
+  <section class="panel" id="cloudPanel" hidden aria-label="Cloud sync setup">
+    <h2>Use the same list on every device</h2>
+    <p>By default this list is saved inside this browser only. Connect a free Firebase (Firestore) database and the list lives online instead, so your phone, laptop and any other device all show the same data.</p>
+    <ol>
+      <li>Create a free project at console.firebase.google.com</li>
+      <li>Open Build &rsaquo; Firestore Database &rsaquo; Create database &rsaquo; start in test mode.</li>
+      <li>In the Rules tab, paste the rules below and press Publish.</li>
+      <li>Open Project settings &rsaquo; Your apps &rsaquo; Web (&lt;/&gt;) and register a web app.</li>
+      <li>Copy the <code>firebaseConfig</code> object it shows you and paste it in the box below.</li>
+    </ol>
+<pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /tracker/data { allow read, write: if true; }
+  }
+}</pre>
+    <p>These rules let anyone who has your config edit the data, which is fine for a personal list — just keep sensitive information out of it.</p>
+    <textarea id="cloudCfg" placeholder='{ "apiKey": "AIza…", "authDomain": "your-project.firebaseapp.com", "projectId": "your-project", "storageBucket": "your-project.appspot.com", "messagingSenderId": "…", "appId": "…" }' aria-label="Firebase config"></textarea>
+    <p class="note">Pasting it here connects this device only, and it stays saved even after you upload a new version of the file. To connect every device automatically, paste the same config into the <code>FIREBASE_CONFIG</code> line near the top of this file's script instead.</p>
+    <div class="bar">
+      <button class="btn btn-danger" id="cloudClear" type="button">Disconnect</button>
+      <span class="spacer"></span>
+      <button class="btn" id="cloudClose" type="button">Close</button>
+      <button class="btn btn-primary" id="cloudSave" type="button">Connect</button>
+    </div>
+  </section>
 </main>
 
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ===========================================================
-   Kisko message kiya — LinkedIn outreach tracker
+   Who I've messaged — LinkedIn outreach tracker
    ===========================================================
-   Yeh poori tarah standalone hai — is .html file ko double-click
-   karke seedhe khol sakte ho, ya GitHub Pages par upload karke
-   online publish kar sakte ho. Koi build step, koi backend nahi.
+   This file is completely standalone. Double-click it to open it
+   locally, or upload it to GitHub Pages to publish it online.
+   No build step and no backend.
 
-   Data by default is browser ke localStorage me save hota hai —
-   turant kaam karta hai, zero setup.
+   WHERE YOUR ENTRIES LIVE
+   They are not stored inside this file. They are stored by the
+   browser, under the address the page is opened from. So when you
+   upload a NEW version of this file to the same GitHub Pages URL,
+   your list is still there — nothing has to be typed in again.
+   Two rules keep that true:
+     1. Keep the same repository, folder and file name.
+     2. Never change STORAGE_KEY below.
+   Use "Download backup" before a big change, and "Restore backup"
+   if you ever need to put the entries back.
 
-   Agar tumhe yeh list HAR device/browser se ek jaisi chahiye
-   (jaise phone + laptop dono se), to neeche FIREBASE_CONFIG bhar do.
-   Firebase Firestore free hai (Spark plan, kabhi bill nahi aata) aur
-   Google ke server par chalta hai — tumhe khud koi server/data
-   center chalane ki zarurat nahi.
-
-   Setup (ek baar karna hai):
-   1. console.firebase.google.com par free project banao.
-   2. Build > Firestore Database > Create database > test mode.
-   3. Rules tab me yeh paste karke Publish karo:
-        rules_version = '2';
-        service cloud.firestore {
-          match /databases/{database}/documents {
-            match /tracker/data { allow read, write: if true; }
-          }
-        }
-      (Note: isse koi bhi jiske paas yeh config ho, data badal
-      sakta hai — personal use ke liye theek hai, bas isme koi
-      sensitive info mat daalna.)
-   4. Project settings > "Your apps" > </> (Web) se ek Web app
-      register karo, jo config object milega usse neeche paste
-      kar do.
+   SAME LIST ON EVERY DEVICE
+   Fill in FIREBASE_CONFIG below (free Firebase Firestore project)
+   and every device that opens this page shares one list. The setup
+   steps are in the "Cloud sync" panel inside the page, and you can
+   also paste the config there instead of editing this file.
 =========================================================== */
 const FIREBASE_CONFIG = null;
-/* Example — apni values yahan bharo:
+/* Example — put your own values here:
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSy...",
   authDomain: "your-project.firebaseapp.com",
@@ -296,55 +370,45 @@ const FIREBASE_CONFIG = {
     { label: "HR Manager / Recruitment Coordinator",     h: 186 }
   ];
   var CUSTOM = "__custom__";
-  var LS_KEY = "linkedin-tracker-v1";
+  var STORAGE_KEY = "linkedin-tracker-v1";   // never change this
+  var CONFIG_KEY  = "linkedin-tracker-cloud-config";
   var FIRESTORE_CDN = "https://www.gstatic.com/firebasejs/10.13.0/";
 
   var items = [];
   var editing = null;          // { id: <itemId>|null, after: <itemId>|null }
-  var cloud = null;            // { docRef, setDoc } jab Firebase ready ho
+  var cloud = null;            // { docRef, setDoc } once Firebase is ready
   var writeChain = Promise.resolve();
   var pendingRemote = null;
   var localDirty = false;
   var firstSnap = true;
 
-  var rowsEl   = document.getElementById("rows");
-  var tallyEl  = document.getElementById("tally");
-  var noteEl   = document.getElementById("note");
-  var searchEl = document.getElementById("search");
-  var filterEl = document.getElementById("roleFilter");
-  var toastEl  = document.getElementById("toast");
+  var rowsEl    = document.getElementById("rows");
+  var tallyEl   = document.getElementById("tally");
+  var noteEl    = document.getElementById("note");
+  var searchEl  = document.getElementById("search");
+  var filterEl  = document.getElementById("roleFilter");
+  var filterCustomEl = document.getElementById("filterCustom");
+  var toastEl   = document.getElementById("toast");
+  var panelEl   = document.getElementById("cloudPanel");
+  var cfgEl     = document.getElementById("cloudCfg");
+  var fileEl    = document.getElementById("importFile");
 
-  /* ---------- storage ---------- */
-  function loadLocal() {
-    try {
-      var raw = localStorage.getItem(LS_KEY);
-      if (!raw) return [];
-      var parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) { return []; }
+  /* ---------- small helpers ---------- */
+  function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function str(v) { return typeof v === "string" ? v.trim() : ""; }
+  function presetFor(role) {
+    for (var i = 0; i < PRESETS.length; i++) if (PRESETS[i].label === role) return PRESETS[i];
+    return null;
   }
-  function saveLocal() {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(items)); } catch (e) {}
-  }
-  function persist() {
-    localDirty = true;
-    saveLocal();
-    if (!cloud) return;
-    var snapshot = items.slice();
-    writeChain = writeChain
-      .then(function () { return cloud.setDoc(cloud.docRef, { items: snapshot }); })
-      .catch(function () { setNote("Cloud save nahi ho paya. Data is browser me safe hai."); });
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("on");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { toastEl.classList.remove("on"); }, 1800);
   }
   function setNote(text) {
     if (!text) { noteEl.hidden = true; noteEl.textContent = ""; return; }
     noteEl.hidden = false; noteEl.textContent = text;
-  }
-
-  /* ---------- helpers ---------- */
-  function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-  function presetFor(role) {
-    for (var i = 0; i < PRESETS.length; i++) if (PRESETS[i].label === role) return PRESETS[i];
-    return null;
   }
   function icon(kind) {
     var NS = "http://www.w3.org/2000/svg";
@@ -362,29 +426,124 @@ const FIREBASE_CONFIG = {
     svg.appendChild(p);
     return svg;
   }
-  function toast(msg) {
-    toastEl.textContent = msg;
-    toastEl.classList.add("on");
-    clearTimeout(toast._t);
-    toast._t = setTimeout(function () { toastEl.classList.remove("on"); }, 1800);
+
+  /* ---------- LinkedIn links ---------- */
+  function tidyUrl(raw) {
+    var s = str(raw);
+    if (!s) return "";
+    if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(s)) s = "https://" + s.replace(/^\/+/, "");
+    return s;
+  }
+  function safeUrl(raw) {
+    var s = tidyUrl(raw);
+    if (!s) return "";
+    try {
+      var u = new URL(s);
+      if (u.protocol === "http:" || u.protocol === "https:") return u.href;
+    } catch (e) {}
+    return "";
+  }
+  function titleFromSlug(slug, dropTrailingId) {
+    var text = slug;
+    try { text = decodeURIComponent(slug); } catch (e) {}
+    var words = text.replace(/[-_+.]+/g, " ").replace(/\s+/g, " ").trim().split(" ");
+    if (dropTrailingId) {
+      while (words.length > 1) {
+        var last = words[words.length - 1];
+        if (/\d/.test(last) && last.length <= 12) words.pop(); else break;
+      }
+    }
+    return words.map(function (w) {
+      return w ? w.charAt(0).toUpperCase() + w.slice(1) : w;
+    }).join(" ").trim();
+  }
+  // Pulls a readable name out of a LinkedIn URL.
+  // kind "company": linkedin.com/company/acme-tools  -> "Acme Tools"
+  // kind "person" : linkedin.com/in/riya-sharma-4b21 -> "Riya Sharma"
+  function nameFromLinkedIn(raw, kind) {
+    var s = safeUrl(raw);
+    if (!s) return "";
+    var u;
+    try { u = new URL(s); } catch (e) { return ""; }
+    if (!/(^|\.)linkedin\.com$/i.test(u.hostname)) return "";
+    var parts = u.pathname.split("/").filter(Boolean);
+    var keys = kind === "company" ? ["company", "school", "showcase"] : ["in", "pub"];
+    for (var i = 0; i < parts.length; i++) {
+      if (keys.indexOf(parts[i].toLowerCase()) > -1 && parts[i + 1]) {
+        return titleFromSlug(parts[i + 1], kind !== "company");
+      }
+    }
+    return "";
+  }
+  function linkNode(text, url, cls) {
+    var el;
+    if (url) {
+      el = document.createElement("a");
+      el.href = url;
+      el.target = "_blank";
+      el.rel = "noopener noreferrer";
+      el.title = "Open on LinkedIn";
+    } else {
+      el = document.createElement("span");
+    }
+    el.textContent = text;
+    if (cls) el.className = cls;
+    return el;
+  }
+
+  /* ---------- storage ---------- */
+  function normalize(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter(function (x) { return x && typeof x === "object"; }).map(function (x) {
+      return {
+        id: str(x.id) || uid(),
+        company: str(x.company),
+        companyUrl: safeUrl(x.companyUrl),
+        role: str(x.role),
+        name: str(x.name),
+        nameUrl: safeUrl(x.nameUrl),
+        accepted: x.accepted === true,
+        created: typeof x.created === "number" ? x.created : Date.now()
+      };
+    });
+  }
+  function loadLocal() {
+    try { return normalize(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")); }
+    catch (e) { return []; }
+  }
+  function saveLocal() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch (e) {}
+  }
+  function persist() {
+    localDirty = true;
+    saveLocal();
+    if (!cloud) return;
+    var snapshot = items.slice();
+    writeChain = writeChain
+      .then(function () { return cloud.setDoc(cloud.docRef, { items: snapshot }); })
+      .catch(function () { setNote("Cloud save failed. Your data is safe in this browser."); });
   }
 
   /* ---------- filtering ---------- */
   function visibleItems() {
     var q = searchEl.value.trim().toLowerCase();
     var role = filterEl.value;
+    var typed = filterCustomEl.value.trim().toLowerCase();
     return items.filter(function (it) {
-      if (role && it.role !== role) return false;
+      if (role === CUSTOM) {
+        if (typed && (it.role || "").toLowerCase().indexOf(typed) === -1) return false;
+      } else if (role && it.role !== role) {
+        return false;
+      }
       if (!q) return true;
       return ((it.company || "") + " " + (it.role || "") + " " + (it.name || "")).toLowerCase().indexOf(q) > -1;
     });
   }
-
   function buildFilter() {
     var current = filterEl.value;
     filterEl.textContent = "";
     var all = document.createElement("option");
-    all.value = ""; all.textContent = "Saare professions";
+    all.value = ""; all.textContent = "All professions";
     filterEl.appendChild(all);
     var seen = {}, order = [];
     PRESETS.forEach(function (p) { seen[p.label] = 1; order.push(p.label); });
@@ -394,7 +553,11 @@ const FIREBASE_CONFIG = {
       o.value = label; o.textContent = label;
       filterEl.appendChild(o);
     });
-    filterEl.value = current && seen[current] ? current : "";
+    var custom = document.createElement("option");
+    custom.value = CUSTOM; custom.textContent = "Custom — type your own";
+    filterEl.appendChild(custom);
+    filterEl.value = (current === CUSTOM || (current && seen[current])) ? current : "";
+    filterCustomEl.hidden = filterEl.value !== CUSTOM;
   }
 
   /* ---------- rows ---------- */
@@ -404,8 +567,14 @@ const FIREBASE_CONFIG = {
 
     var company = document.createElement("div");
     company.className = "company";
-    if (it.company) { company.textContent = it.company; }
-    else { company.textContent = "Company nahi likhi"; company.classList.add("muted"); }
+    if (it.company) {
+      company.appendChild(linkNode(it.company, it.companyUrl));
+    } else if (it.companyUrl) {
+      company.appendChild(linkNode("Company page", it.companyUrl));
+    } else {
+      company.textContent = "No company";
+      company.classList.add("muted");
+    }
 
     var roleCell = document.createElement("div");
     roleCell.className = "role";
@@ -417,29 +586,52 @@ const FIREBASE_CONFIG = {
       chip.textContent = it.role;
       roleCell.appendChild(chip);
     } else {
-      roleCell.textContent = "Profession nahi chuna";
+      roleCell.textContent = "No profession";
       roleCell.classList.add("muted");
     }
 
     var person = document.createElement("div");
     person.className = "person";
-    if (it.name) { person.textContent = it.name; }
-    else { person.textContent = "Naam nahi likha"; person.classList.add("muted"); }
+    if (it.name) {
+      person.appendChild(linkNode(it.name, it.nameUrl));
+    } else if (it.nameUrl) {
+      person.appendChild(linkNode("Profile", it.nameUrl));
+    } else {
+      person.textContent = "No name";
+      person.classList.add("muted");
+    }
+
+    var state = document.createElement("div");
+    state.className = "state";
+    var badge = document.createElement("button");
+    badge.type = "button";
+    badge.className = it.accepted ? "status yes" : "status";
+    var dot = document.createElement("span");
+    dot.className = "dot";
+    badge.appendChild(dot);
+    badge.appendChild(document.createTextNode(it.accepted ? "Accepted" : "Not accepted"));
+    badge.title = "Tap to change whether they accepted your request";
+    badge.addEventListener("click", function () {
+      it.accepted = !it.accepted;
+      persist(); render();
+      toast(it.accepted ? "Marked as accepted" : "Marked as not accepted");
+    });
+    state.appendChild(badge);
 
     var acts = document.createElement("div");
     acts.className = "acts";
 
     var edit = document.createElement("button");
     edit.type = "button"; edit.className = "icon-btn";
-    edit.title = "Edit karo";
-    edit.setAttribute("aria-label", "Edit karo: " + (it.name || it.company || "entry"));
+    edit.title = "Edit";
+    edit.setAttribute("aria-label", "Edit " + (it.name || it.company || "entry"));
     edit.appendChild(icon("pencil"));
     edit.addEventListener("click", function () { editing = { id: it.id, after: null }; render(); });
 
     var plus = document.createElement("button");
     plus.type = "button"; plus.className = "icon-btn";
-    plus.title = "Iske neeche naya add karo";
-    plus.setAttribute("aria-label", "Iske neeche naya person add karo");
+    plus.title = "Add below this one";
+    plus.setAttribute("aria-label", "Add a new person below this one");
     plus.appendChild(icon("plus"));
     plus.addEventListener("click", function () { editing = { id: null, after: it.id }; render(); });
 
@@ -449,8 +641,37 @@ const FIREBASE_CONFIG = {
     row.appendChild(company);
     row.appendChild(roleCell);
     row.appendChild(person);
+    row.appendChild(state);
     row.appendChild(acts);
     return row;
+  }
+
+  /* ---------- editor ---------- */
+  function field(cls, placeholder, label, type) {
+    var el = document.createElement("input");
+    el.type = type || "text";
+    el.className = cls;
+    el.placeholder = placeholder;
+    el.setAttribute("aria-label", label);
+    el.autocomplete = "off";
+    if (type === "url") { el.spellcheck = false; el.setAttribute("inputmode", "url"); }
+    return el;
+  }
+  function wireAutofill(urlInput, nameInput, kind) {
+    var lastAuto = "";
+    function apply() {
+      var guess = nameFromLinkedIn(urlInput.value, kind);
+      if (!guess) return;
+      var current = nameInput.value.trim();
+      if (current === "" || current === lastAuto) {
+        nameInput.value = guess;
+        lastAuto = guess;
+      }
+    }
+    urlInput.addEventListener("input", apply);
+    urlInput.addEventListener("change", apply);
+    urlInput.addEventListener("blur", apply);
+    urlInput.addEventListener("paste", function () { setTimeout(apply, 0); });
   }
 
   function editorNode(existing) {
@@ -460,14 +681,18 @@ const FIREBASE_CONFIG = {
     var fields = document.createElement("div");
     fields.className = "fields";
 
-    var company = document.createElement("input");
-    company.type = "text"; company.placeholder = "Company"; company.setAttribute("aria-label", "Company");
-    company.value = existing ? (existing.company || "") : "";
+    var company    = field("f-company", "Company", "Company");
+    var companyUrl = field("f-companyUrl", "Company LinkedIn URL — paste to fill the name", "Company LinkedIn URL", "url");
+    var name       = field("f-name", "Name", "Name");
+    var nameUrl    = field("f-nameUrl", "Their LinkedIn profile URL — paste to fill the name", "Person's LinkedIn URL", "url");
+    var custom     = field("f-customRole", "Type the profession yourself", "Custom work profession");
+    custom.hidden = true;
 
     var select = document.createElement("select");
+    select.className = "f-role";
     select.setAttribute("aria-label", "Work profession");
     var blank = document.createElement("option");
-    blank.value = ""; blank.textContent = "Work profession chuno";
+    blank.value = ""; blank.textContent = "Choose a work profession";
     select.appendChild(blank);
     PRESETS.forEach(function (p) {
       var o = document.createElement("option");
@@ -475,37 +700,46 @@ const FIREBASE_CONFIG = {
       select.appendChild(o);
     });
     var customOpt = document.createElement("option");
-    customOpt.value = CUSTOM; customOpt.textContent = "Custom - khud likho";
+    customOpt.value = CUSTOM; customOpt.textContent = "Custom — type your own";
     select.appendChild(customOpt);
 
-    var name = document.createElement("input");
-    name.type = "text"; name.placeholder = "Name"; name.setAttribute("aria-label", "Name");
-    name.value = existing ? (existing.name || "") : "";
+    var acceptWrap = document.createElement("label");
+    acceptWrap.className = "check f-accept";
+    var accept = document.createElement("input");
+    accept.type = "checkbox";
+    acceptWrap.appendChild(accept);
+    acceptWrap.appendChild(document.createTextNode("They accepted my request"));
 
-    var custom = document.createElement("input");
-    custom.type = "text"; custom.className = "full";
-    custom.placeholder = "Custom profession yahan likho";
-    custom.setAttribute("aria-label", "Custom work profession");
-    custom.hidden = true;
-
-    if (existing && existing.role) {
-      if (presetFor(existing.role)) {
-        select.value = existing.role;
-      } else {
-        select.value = CUSTOM;
-        custom.hidden = false;
-        custom.value = existing.role;
+    if (existing) {
+      company.value = existing.company || "";
+      companyUrl.value = existing.companyUrl || "";
+      name.value = existing.name || "";
+      nameUrl.value = existing.nameUrl || "";
+      accept.checked = existing.accepted === true;
+      if (existing.role) {
+        if (presetFor(existing.role)) {
+          select.value = existing.role;
+        } else {
+          select.value = CUSTOM;
+          custom.hidden = false;
+          custom.value = existing.role;
+        }
       }
     }
     select.addEventListener("change", function () {
       custom.hidden = select.value !== CUSTOM;
       if (!custom.hidden) custom.focus();
     });
+    wireAutofill(companyUrl, company, "company");
+    wireAutofill(nameUrl, name, "person");
 
     fields.appendChild(company);
+    fields.appendChild(companyUrl);
     fields.appendChild(select);
-    fields.appendChild(name);
     fields.appendChild(custom);
+    fields.appendChild(name);
+    fields.appendChild(nameUrl);
+    fields.appendChild(acceptWrap);
 
     var err = document.createElement("p");
     err.className = "err"; err.hidden = true;
@@ -515,18 +749,18 @@ const FIREBASE_CONFIG = {
 
     if (existing) {
       var del = document.createElement("button");
-      del.type = "button"; del.className = "btn btn-danger"; del.textContent = "Hatao";
+      del.type = "button"; del.className = "btn btn-danger"; del.textContent = "Delete";
       var armed = false, armTimer = null;
       del.addEventListener("click", function () {
         if (!armed) {
-          armed = true; del.textContent = "Pakka hatana hai?";
-          armTimer = setTimeout(function () { armed = false; del.textContent = "Hatao"; }, 4000);
+          armed = true; del.textContent = "Tap again to delete";
+          armTimer = setTimeout(function () { armed = false; del.textContent = "Delete"; }, 4000);
           return;
         }
         clearTimeout(armTimer);
         items = items.filter(function (x) { return x.id !== existing.id; });
         editing = null;
-        persist(); buildFilter(); render(); toast("Hata diya");
+        persist(); buildFilter(); render(); toast("Deleted");
       });
       bar.appendChild(del);
     }
@@ -540,24 +774,41 @@ const FIREBASE_CONFIG = {
     cancel.addEventListener("click", function () { editing = null; render(); });
 
     var save = document.createElement("button");
-    save.type = "button"; save.className = "btn btn-primary"; save.textContent = "Save karo";
+    save.type = "button"; save.className = "btn btn-primary"; save.textContent = "Save";
 
     function commit() {
       var role = select.value === CUSTOM ? custom.value.trim() : select.value;
       var c = company.value.trim(), n = name.value.trim();
+      var cUrl = safeUrl(companyUrl.value), nUrl = safeUrl(nameUrl.value);
       if (!c && !n) {
-        err.hidden = false; err.textContent = "Company ya name - kam se kam ek to likho.";
+        err.hidden = false; err.textContent = "Enter at least a company or a name.";
         company.focus(); return;
       }
       if (select.value === CUSTOM && !role) {
-        err.hidden = false; err.textContent = "Custom profession likhna baaki hai.";
+        err.hidden = false; err.textContent = "Type the custom profession first.";
         custom.focus(); return;
+      }
+      if (companyUrl.value.trim() && !cUrl) {
+        err.hidden = false; err.textContent = "That company link doesn't look like a web address.";
+        companyUrl.focus(); return;
+      }
+      if (nameUrl.value.trim() && !nUrl) {
+        err.hidden = false; err.textContent = "That profile link doesn't look like a web address.";
+        nameUrl.focus(); return;
       }
       var wasEdit = !!existing;
       if (existing) {
-        existing.company = c; existing.role = role; existing.name = n;
+        existing.company = c;
+        existing.companyUrl = cUrl;
+        existing.role = role;
+        existing.name = n;
+        existing.nameUrl = nUrl;
+        existing.accepted = accept.checked;
       } else {
-        var fresh = { id: uid(), company: c, role: role, name: n, created: Date.now() };
+        var fresh = {
+          id: uid(), company: c, companyUrl: cUrl, role: role,
+          name: n, nameUrl: nUrl, accepted: accept.checked, created: Date.now()
+        };
         var at = items.length;
         if (editing && editing.after) {
           for (var i = 0; i < items.length; i++) {
@@ -568,12 +819,14 @@ const FIREBASE_CONFIG = {
       }
       editing = null;
       persist(); buildFilter(); render();
-      toast(wasEdit ? "Update ho gaya" : "Add ho gaya");
+      toast(wasEdit ? "Updated" : "Added");
     }
     save.addEventListener("click", commit);
 
     box.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); commit(); }
+      if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.type !== "checkbox") {
+        e.preventDefault(); commit();
+      }
       if (e.key === "Escape") { editing = null; render(); }
     });
 
@@ -627,16 +880,16 @@ const FIREBASE_CONFIG = {
       var empty = document.createElement("div");
       empty.className = "empty";
       var p = document.createElement("p");
-      p.textContent = "List abhi khaali hai. LinkedIn par jise message kiya, use yahan add karo.";
+      p.textContent = "Nothing here yet. Add the people you message on LinkedIn.";
       var b = document.createElement("button");
-      b.type = "button"; b.className = "btn btn-primary"; b.textContent = "Pehla person add karo";
+      b.type = "button"; b.className = "btn btn-primary"; b.textContent = "Add the first person";
       b.addEventListener("click", startNew);
       empty.appendChild(p); empty.appendChild(b);
       rowsEl.appendChild(empty);
     } else if (items.length && !list.length && !editing) {
       var none = document.createElement("div");
       none.className = "empty";
-      none.textContent = "Is search se kuch nahi mila.";
+      none.textContent = "No entries match this search.";
       rowsEl.appendChild(none);
     }
 
@@ -646,14 +899,17 @@ const FIREBASE_CONFIG = {
 
   function updateTally(shown) {
     var total = items.length;
-    if (!total) { tallyEl.textContent = "Abhi tak kisi ko message nahi kiya."; return; }
-    var comps = {};
-    items.forEach(function (it) { if (it.company) comps[it.company.trim().toLowerCase()] = 1; });
+    if (!total) { tallyEl.textContent = "You haven't messaged anyone yet."; return; }
+    var comps = {}, accepted = 0;
+    items.forEach(function (it) {
+      if (it.company) comps[it.company.trim().toLowerCase()] = 1;
+      if (it.accepted) accepted++;
+    });
     var c = Object.keys(comps).length;
-    var line = "Ab tak " + total + (total === 1 ? " person" : " logo") + " ko message kiya";
-    if (c) line += ", " + c + (c === 1 ? " company" : " companies") + " me";
-    line += ".";
-    if (shown !== total) line += " Filter me " + shown + " dikh rahe hai.";
+    var line = "You've messaged " + total + (total === 1 ? " person" : " people");
+    if (c) line += " across " + c + (c === 1 ? " company" : " companies");
+    line += ". " + accepted + " accepted.";
+    if (shown !== total) line += " The filter is showing " + shown + ".";
     tallyEl.textContent = line;
   }
 
@@ -662,24 +918,122 @@ const FIREBASE_CONFIG = {
     render();
   }
 
+  /* ---------- backup ---------- */
+  function exportBackup() {
+    var stamp = new Date().toISOString().slice(0, 10);
+    var blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "messaged-backup-" + stamp + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    toast("Backup downloaded");
+  }
+  function importBackup(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var incoming;
+      try { incoming = normalize(JSON.parse(String(reader.result))); }
+      catch (e) { toast("That file isn't a valid backup"); return; }
+      if (!incoming.length) { toast("That backup is empty"); return; }
+      var byId = {};
+      items.forEach(function (it) { byId[it.id] = it; });
+      var added = 0, updated = 0;
+      incoming.forEach(function (it) {
+        if (byId[it.id]) {
+          var t = byId[it.id];
+          t.company = it.company; t.companyUrl = it.companyUrl; t.role = it.role;
+          t.name = it.name; t.nameUrl = it.nameUrl; t.accepted = it.accepted;
+          updated++;
+        } else {
+          items.push(it); added++;
+        }
+      });
+      persist(); buildFilter(); render();
+      toast(added + " added, " + updated + " updated");
+    };
+    reader.readAsText(file);
+  }
+
+  /* ---------- cloud config stored in this browser ---------- */
+  function parseConfig(text) {
+    var m = String(text || "").match(/\{[\s\S]*\}/);
+    if (!m) return null;
+    var raw = m[0];
+    try { return JSON.parse(raw); } catch (e) {}
+    try {
+      var fixed = raw
+        .replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g, '$1"$2":')
+        .replace(/'/g, '"')
+        .replace(/,(\s*[}\]])/g, "$1");
+      return JSON.parse(fixed);
+    } catch (e) { return null; }
+  }
+  function storedConfig() {
+    try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || "null"); }
+    catch (e) { return null; }
+  }
+  function openPanel() {
+    var saved = storedConfig();
+    cfgEl.value = saved ? JSON.stringify(saved, null, 2) : "";
+    panelEl.hidden = false;
+    panelEl.scrollIntoView({ block: "start" });
+    cfgEl.focus();
+  }
+
   document.getElementById("addTop").addEventListener("click", startNew);
   document.getElementById("addBottom").addEventListener("click", startNew);
   searchEl.addEventListener("input", function () { if (!editing) render(); });
-  filterEl.addEventListener("change", function () { if (!editing) render(); });
+  filterCustomEl.addEventListener("input", function () { if (!editing) render(); });
+  filterEl.addEventListener("change", function () {
+    filterCustomEl.hidden = filterEl.value !== CUSTOM;
+    if (!filterCustomEl.hidden) filterCustomEl.focus();
+    if (!editing) render();
+  });
+  document.getElementById("exportBtn").addEventListener("click", exportBackup);
+  document.getElementById("importBtn").addEventListener("click", function () { fileEl.click(); });
+  fileEl.addEventListener("change", function () {
+    if (fileEl.files && fileEl.files[0]) importBackup(fileEl.files[0]);
+    fileEl.value = "";
+  });
+  document.getElementById("cloudBtn").addEventListener("click", function () {
+    if (panelEl.hidden) openPanel(); else panelEl.hidden = true;
+  });
+  document.getElementById("cloudClose").addEventListener("click", function () { panelEl.hidden = true; });
+  document.getElementById("cloudSave").addEventListener("click", function () {
+    var cfg = parseConfig(cfgEl.value);
+    if (!cfg || !cfg.apiKey || !cfg.projectId) {
+      toast("Paste the whole firebaseConfig object");
+      return;
+    }
+    try { localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); } catch (e) {}
+    toast("Connecting…");
+    setTimeout(function () { location.reload(); }, 400);
+  });
+  document.getElementById("cloudClear").addEventListener("click", function () {
+    try { localStorage.removeItem(CONFIG_KEY); } catch (e) {}
+    toast("Disconnected");
+    setTimeout(function () { location.reload(); }, 400);
+  });
 
   /* ---------- boot ---------- */
   items = loadLocal();
   buildFilter();
   render();
 
-  if (FIREBASE_CONFIG) {
-    setNote("Cloud se connect ho raha hai...");
+  var activeConfig = storedConfig() || FIREBASE_CONFIG;
+
+  if (activeConfig) {
+    setNote("Connecting to the cloud…");
     Promise.all([
       import(FIRESTORE_CDN + "firebase-app.js"),
       import(FIRESTORE_CDN + "firebase-firestore.js")
     ]).then(function (mods) {
       var appMod = mods[0], fsMod = mods[1];
-      var app = appMod.initializeApp(FIREBASE_CONFIG);
+      var app = appMod.initializeApp(activeConfig);
       var db = fsMod.getFirestore(app);
       var docRef = fsMod.doc(db, "tracker", "data");
       cloud = {
@@ -692,7 +1046,7 @@ const FIREBASE_CONFIG = {
         if (snap.exists()) {
           var data = snap.data() || {};
           if (!Array.isArray(data.items)) { firstSnap = false; return; }
-          var remote = data.items.slice();
+          var remote = normalize(data.items);
           if (firstSnap && localDirty) {
             var ids = {};
             remote.forEach(function (r) { ids[r.id] = 1; });
@@ -714,14 +1068,14 @@ const FIREBASE_CONFIG = {
         }
       }, function () {
         cloud = null;
-        setNote("Cloud se connect nahi ho paya. Data is browser me save ho raha hai.");
+        setNote("Couldn't reach the cloud. Your data is being saved in this browser.");
       });
     }).catch(function () {
       cloud = null;
-      setNote("Cloud setup me gadbad hai. Data is browser me save ho raha hai.");
+      setNote("Cloud setup isn't working. Your data is being saved in this browser.");
     });
   } else {
-    setNote("Abhi sirf is browser me save ho raha hai. Har device se same data chahiye to upar script ke shuru me diya \"Cloud sync\" wala tarika follow karo.");
+    setNote("Saved in this browser only. Tap \u201cCloud sync\u201d below to use the same list on every device.");
   }
 })();
 </script>
