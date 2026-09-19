@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kisko message kiya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:    #EEF2EE;
+    --surface:  #FFFFFF;
+    --ink:      #16241F;
+    --ink-soft: #5B6C64;
+    --line:     #D4DDD6;
+    --line-soft:#E4EAE5;
+    --accent:   #2E6E5B;
+    --accent-2: #1F5245;
+    --on-accent:#FFFFFF;
+    --danger:   #9C3B2E;
+    --focus:    #2E6E5B;
+    --chip-bg:  hsl(var(--h, 158) 34% 91%);
+    --chip-fg:  hsl(var(--h, 158) 44% 24%);
+    --shadow:   0 1px 0 rgba(22,36,31,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:    #0F1512;
+      --surface:  #161F1B;
+      --ink:      #E7EEE9;
+      --ink-soft: #93A69C;
+      --line:     #26332D;
+      --line-soft:#1D2723;
+      --accent:   #5FB395;
+      --accent-2: #86CCAF;
+      --on-accent:#0F1512;
+      --danger:   #E38A79;
+      --focus:    #74C3A6;
+      --chip-bg:  hsl(var(--h, 158) 26% 17%);
+      --chip-fg:  hsl(var(--h, 158) 48% 74%);
+      --shadow:   none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:    #0F1512;
+    --surface:  #161F1B;
+    --ink:      #E7EEE9;
+    --ink-soft: #93A69C;
+    --line:     #26332D;
+    --line-soft:#1D2723;
+    --accent:   #5FB395;
+    --accent-2: #86CCAF;
+    --on-accent:#0F1512;
+    --danger:   #E38A79;
+    --focus:    #74C3A6;
+    --chip-bg:  hsl(var(--h, 158) 26% 17%);
+    --chip-fg:  hsl(var(--h, 158) 48% 74%);
+    --shadow:   none;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 20px 96px; }
+
+  .masthead {
+    display: flex; align-items: flex-start; gap: 18px;
+    padding-bottom: 22px; margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .masthead-text { flex: 1 1 auto; min-width: 0; }
+  h1 {
+    font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    font-size: clamp(34px, 6vw, 50px);
+    line-height: 1.05;
+    letter-spacing: -.01em;
+    margin: 0 0 6px;
+  }
+  .tally { margin: 0; color: var(--ink-soft); max-width: 54ch; font-variant-numeric: tabular-nums; }
+  .note { margin: 6px 0 0; font-size: 13px; color: var(--ink-soft); }
+
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; padding: 0;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--surface); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .icon-btn:hover { color: var(--accent-2); border-color: var(--accent); }
+  .icon-btn svg { width: 15px; height: 15px; }
+  .add-big {
+    flex: 0 0 auto;
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 1px solid var(--accent);
+    background: var(--accent); color: var(--on-accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .add-big svg { width: 20px; height: 20px; }
+  .add-big:hover { background: var(--accent-2); border-color: var(--accent-2); }
+  .btn {
+    font: inherit; font-weight: 500;
+    padding: 8px 15px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+  .btn-danger { color: var(--danger); background: transparent; }
+  .btn-danger:hover { border-color: var(--danger); }
+  button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--focus); outline-offset: 2px;
+  }
+
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  input[type="search"], input[type="text"], select {
+    font: inherit; color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px 11px; min-width: 0;
+  }
+  input::placeholder { color: var(--ink-soft); opacity: .85; }
+  #search { flex: 1 1 240px; }
+  #roleFilter { flex: 0 1 260px; max-width: 100%; }
+
+  .ledger {
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--surface); box-shadow: var(--shadow); overflow: hidden;
+  }
+  .grid { display: grid; grid-template-columns: 1.05fr 1.15fr .95fr 84px; gap: 14px; align-items: center; }
+  .head { padding: 11px 16px; border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: 13px; font-weight: 500; }
+  .head span:last-child { text-align: right; }
+  .row { padding: 13px 16px; border-bottom: 1px solid var(--line-soft); }
+  .row:last-of-type { border-bottom: none; }
+  .row .company { font-weight: 600; overflow-wrap: anywhere; }
+  .row .person { overflow-wrap: anywhere; }
+  .row .acts { display: flex; gap: 6px; justify-content: flex-end; }
+  .chip {
+    display: inline-block; max-width: 100%;
+    padding: 4px 10px; border-radius: 999px;
+    background: var(--chip-bg); color: var(--chip-fg);
+    font-size: 13px; font-weight: 500; line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .chip.custom { background: var(--line-soft); color: var(--ink-soft); }
+  .muted { color: var(--ink-soft); }
+
+  .empty { padding: 44px 20px; text-align: center; color: var(--ink-soft); }
+  .empty p { margin: 0 0 14px; }
+
+  .add-row {
+    width: 100%; text-align: left;
+    font: inherit; font-weight: 500; color: var(--accent-2);
+    background: transparent; border: none; border-top: 1px solid var(--line);
+    padding: 13px 16px; cursor: pointer;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .add-row svg { width: 15px; height: 15px; }
+  .add-row:hover { background: var(--line-soft); }
+
+  .editor { padding: 16px; background: var(--line-soft); border-bottom: 1px solid var(--line); }
+  .editor .fields { display: grid; grid-template-columns: 1.05fr 1.15fr .95fr; gap: 10px; }
+  .editor input[type="text"], .editor select { width: 100%; }
+  .editor .full { grid-column: 1 / -1; }
+  .editor .bar { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  .editor .bar .spacer { flex: 1 1 auto; }
+  .err { color: var(--danger); font-size: 13px; margin: 8px 0 0; }
+
+  footer.hint { margin-top: 22px; font-size: 13px; color: var(--ink-soft); text-align: center; }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    background: var(--ink); color: var(--paper);
+    padding: 9px 16px; border-radius: 999px; font-size: 14px;
+    opacity: 0; pointer-events: none; transition: opacity .18s ease;
+  }
+  #toast.on { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 26px 14px 80px; }
+    .head { display: none; }
+    .grid.row {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "company acts" "role role" "person person";
+      gap: 6px 10px;
+    }
+    .row .company { grid-area: company; }
+    .row .role    { grid-area: role; }
+    .row .person  { grid-area: person; color: var(--ink-soft); }
+    .row .acts    { grid-area: acts; align-self: start; }
+    .editor .fields { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="masthead">
+    <div class="masthead-text">
+      <h1>Kisko message kiya</h1>
+      <p class="tally" id="tally">Load ho raha hai...</p>
+      <p class="note" id="note" hidden></p>
+    </div>
+    <button class="add-big" id="addTop" type="button" title="Naya add karo" aria-label="Naya person add karo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </header>
+
+  <div class="controls">
+    <input type="search" id="search" placeholder="Naam, company ya profession dhoondo" aria-label="Search">
+    <select id="roleFilter" aria-label="Profession se filter karo"></select>
+  </div>
+
+  <section class="ledger" aria-label="Message list">
+    <div class="grid head" aria-hidden="true">
+      <span>Company</span><span>Work profession</span><span>Name</span><span>Edit</span>
+    </div>
+    <div id="rows"></div>
+    <button class="add-row" id="addBottom" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Naya person add karo
+    </button>
+  </section>
+
+  <footer class="hint">Cloud sync (har device se same data) setup karne ka tarika neeche script ke shuru me likha hai.</footer>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ===========================================================
+   Kisko message kiya — LinkedIn outreach tracker
+   ===========================================================
+   Yeh poori tarah standalone hai — is .html file ko double-click
+   karke seedhe khol sakte ho, ya GitHub Pages par upload karke
+   online publish kar sakte ho. Koi build step, koi backend nahi.
+
+   Data by default is browser ke localStorage me save hota hai —
+   turant kaam karta hai, zero setup.
+
+   Agar tumhe yeh list HAR device/browser se ek jaisi chahiye
+   (jaise phone + laptop dono se), to neeche FIREBASE_CONFIG bhar do.
+   Firebase Firestore free hai (Spark plan, kabhi bill nahi aata) aur
+   Google ke server par chalta hai — tumhe khud koi server/data
+   center chalane ki zarurat nahi.
+
+   Setup (ek baar karna hai):
+   1. console.firebase.google.com par free project banao.
+   2. Build > Firestore Database > Create database > test mode.
+   3. Rules tab me yeh paste karke Publish karo:
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            match /tracker/data { allow read, write: if true; }
+          }
+        }
+      (Note: isse koi bhi jiske paas yeh config ho, data badal
+      sakta hai — personal use ke liye theek hai, bas isme koi
+      sensitive info mat daalna.)
+   4. Project settings > "Your apps" > </> (Web) se ek Web app
+      register karo, jo config object milega usse neeche paste
+      kar do.
+=========================================================== */
+const FIREBASE_CONFIG = null;
+/* Example — apni values yahan bharo:
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSy...",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "...",
+  appId: "..."
+};
+*/
+
+(function () {
+  "use strict";
+
+  var PRESETS = [
+    { label: "Sales Manager / CRM Administrator",        h: 158 },
+    { label: "Inventory / Catalog Manager (E-commerce)", h: 28  },
+    { label: "Marketing Manager / Marketing Ops",        h: 292 },
+    { label: "Ops Manager",                              h: 208 },
+    { label: "Finance Manager / Accountant",             h: 42  },
+    { label: "Support Manager",                          h: 340 },
+    { label: "HR Manager / Recruitment Coordinator",     h: 186 }
+  ];
+  var CUSTOM = "__custom__";
+  var LS_KEY = "linkedin-tracker-v1";
+  var FIRESTORE_CDN = "https://www.gstatic.com/firebasejs/10.13.0/";
+
+  var items = [];
+  var editing = null;          // { id: <itemId>|null, after: <itemId>|null }
+  var cloud = null;            // { docRef, setDoc } jab Firebase ready ho
+  var writeChain = Promise.resolve();
+  var pendingRemote = null;
+  var localDirty = false;
+  var firstSnap = true;
+
+  var rowsEl   = document.getElementById("rows");
+  var tallyEl  = document.getElementById("tally");
+  var noteEl   = document.getElementById("note");
+  var searchEl = document.getElementById("search");
+  var filterEl = document.getElementById("roleFilter");
+  var toastEl  = document.getElementById("toast");
+
+  /* ---------- storage ---------- */
+  function loadLocal() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) { return []; }
+  }
+  function saveLocal() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(items)); } catch (e) {}
+  }
+  function persist() {
+    localDirty = true;
+    saveLocal();
+    if (!cloud) return;
+    var snapshot = items.slice();
+    writeChain = writeChain
+      .then(function () { return cloud.setDoc(cloud.docRef, { items: snapshot }); })
+      .catch(function () { setNote("Cloud save nahi ho paya. Data is browser me safe hai."); });
+  }
+  function setNote(text) {
+    if (!text) { noteEl.hidden = true; noteEl.textContent = ""; return; }
+    noteEl.hidden = false; noteEl.textContent = text;
+  }
+
+  /* ---------- helpers ---------- */
+  function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function presetFor(role) {
+    for (var i = 0; i < PRESETS.length; i++) if (PRESETS[i].label === role) return PRESETS[i];
+    return null;
+  }
+  function icon(kind) {
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    var p = document.createElementNS(NS, "path");
+    p.setAttribute("d", kind === "pencil"
+      ? "M4 20h4.2L19.1 9.1a2.2 2.2 0 0 0-3.2-3.2L5 16.8V20z"
+      : "M12 5v14M5 12h14");
+    svg.appendChild(p);
+    return svg;
+  }
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("on");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { toastEl.classList.remove("on"); }, 1800);
+  }
+
+  /* ---------- filtering ---------- */
+  function visibleItems() {
+    var q = searchEl.value.trim().toLowerCase();
+    var role = filterEl.value;
+    return items.filter(function (it) {
+      if (role && it.role !== role) return false;
+      if (!q) return true;
+      return ((it.company || "") + " " + (it.role || "") + " " + (it.name || "")).toLowerCase().indexOf(q) > -1;
+    });
+  }
+
+  function buildFilter() {
+    var current = filterEl.value;
+    filterEl.textContent = "";
+    var all = document.createElement("option");
+    all.value = ""; all.textContent = "Saare professions";
+    filterEl.appendChild(all);
+    var seen = {}, order = [];
+    PRESETS.forEach(function (p) { seen[p.label] = 1; order.push(p.label); });
+    items.forEach(function (it) { if (it.role && !seen[it.role]) { seen[it.role] = 1; order.push(it.role); } });
+    order.forEach(function (label) {
+      var o = document.createElement("option");
+      o.value = label; o.textContent = label;
+      filterEl.appendChild(o);
+    });
+    filterEl.value = current && seen[current] ? current : "";
+  }
+
+  /* ---------- rows ---------- */
+  function rowNode(it) {
+    var row = document.createElement("div");
+    row.className = "grid row";
+
+    var company = document.createElement("div");
+    company.className = "company";
+    if (it.company) { company.textContent = it.company; }
+    else { company.textContent = "Company nahi likhi"; company.classList.add("muted"); }
+
+    var roleCell = document.createElement("div");
+    roleCell.className = "role";
+    if (it.role) {
+      var chip = document.createElement("span");
+      var preset = presetFor(it.role);
+      chip.className = preset ? "chip" : "chip custom";
+      if (preset) chip.style.setProperty("--h", String(preset.h));
+      chip.textContent = it.role;
+      roleCell.appendChild(chip);
+    } else {
+      roleCell.textContent = "Profession nahi chuna";
+      roleCell.classList.add("muted");
+    }
+
+    var person = document.createElement("div");
+    person.className = "person";
+    if (it.name) { person.textContent = it.name; }
+    else { person.textContent = "Naam nahi likha"; person.classList.add("muted"); }
+
+    var acts = document.createElement("div");
+    acts.className = "acts";
+
+    var edit = document.createElement("button");
+    edit.type = "button"; edit.className = "icon-btn";
+    edit.title = "Edit karo";
+    edit.setAttribute("aria-label", "Edit karo: " + (it.name || it.company || "entry"));
+    edit.appendChild(icon("pencil"));
+    edit.addEventListener("click", function () { editing = { id: it.id, after: null }; render(); });
+
+    var plus = document.createElement("button");
+    plus.type = "button"; plus.className = "icon-btn";
+    plus.title = "Iske neeche naya add karo";
+    plus.setAttribute("aria-label", "Iske neeche naya person add karo");
+    plus.appendChild(icon("plus"));
+    plus.addEventListener("click", function () { editing = { id: null, after: it.id }; render(); });
+
+    acts.appendChild(edit);
+    acts.appendChild(plus);
+
+    row.appendChild(company);
+    row.appendChild(roleCell);
+    row.appendChild(person);
+    row.appendChild(acts);
+    return row;
+  }
+
+  function editorNode(existing) {
+    var box = document.createElement("div");
+    box.className = "editor";
+
+    var fields = document.createElement("div");
+    fields.className = "fields";
+
+    var company = document.createElement("input");
+    company.type = "text"; company.placeholder = "Company"; company.setAttribute("aria-label", "Company");
+    company.value = existing ? (existing.company || "") : "";
+
+    var select = document.createElement("select");
+    select.setAttribute("aria-label", "Work profession");
+    var blank = document.createElement("option");
+    blank.value = ""; blank.textContent = "Work profession chuno";
+    select.appendChild(blank);
+    PRESETS.forEach(function (p) {
+      var o = document.createElement("option");
+      o.value = p.label; o.textContent = p.label;
+      select.appendChild(o);
+    });
+    var customOpt = document.createElement("option");
+    customOpt.value = CUSTOM; customOpt.textContent = "Custom - khud likho";
+    select.appendChild(customOpt);
+
+    var name = document.createElement("input");
+    name.type = "text"; name.placeholder = "Name"; name.setAttribute("aria-label", "Name");
+    name.value = existing ? (existing.name || "") : "";
+
+    var custom = document.createElement("input");
+    custom.type = "text"; custom.className = "full";
+    custom.placeholder = "Custom profession yahan likho";
+    custom.setAttribute("aria-label", "Custom work profession");
+    custom.hidden = true;
+
+    if (existing && existing.role) {
+      if (presetFor(existing.role)) {
+        select.value = existing.role;
+      } else {
+        select.value = CUSTOM;
+        custom.hidden = false;
+        custom.value = existing.role;
+      }
+    }
+    select.addEventListener("change", function () {
+      custom.hidden = select.value !== CUSTOM;
+      if (!custom.hidden) custom.focus();
+    });
+
+    fields.appendChild(company);
+    fields.appendChild(select);
+    fields.appendChild(name);
+    fields.appendChild(custom);
+
+    var err = document.createElement("p");
+    err.className = "err"; err.hidden = true;
+
+    var bar = document.createElement("div");
+    bar.className = "bar";
+
+    if (existing) {
+      var del = document.createElement("button");
+      del.type = "button"; del.className = "btn btn-danger"; del.textContent = "Hatao";
+      var armed = false, armTimer = null;
+      del.addEventListener("click", function () {
+        if (!armed) {
+          armed = true; del.textContent = "Pakka hatana hai?";
+          armTimer = setTimeout(function () { armed = false; del.textContent = "Hatao"; }, 4000);
+          return;
+        }
+        clearTimeout(armTimer);
+        items = items.filter(function (x) { return x.id !== existing.id; });
+        editing = null;
+        persist(); buildFilter(); render(); toast("Hata diya");
+      });
+      bar.appendChild(del);
+    }
+
+    var spacer = document.createElement("span");
+    spacer.className = "spacer";
+    bar.appendChild(spacer);
+
+    var cancel = document.createElement("button");
+    cancel.type = "button"; cancel.className = "btn"; cancel.textContent = "Cancel";
+    cancel.addEventListener("click", function () { editing = null; render(); });
+
+    var save = document.createElement("button");
+    save.type = "button"; save.className = "btn btn-primary"; save.textContent = "Save karo";
+
+    function commit() {
+      var role = select.value === CUSTOM ? custom.value.trim() : select.value;
+      var c = company.value.trim(), n = name.value.trim();
+      if (!c && !n) {
+        err.hidden = false; err.textContent = "Company ya name - kam se kam ek to likho.";
+        company.focus(); return;
+      }
+      if (select.value === CUSTOM && !role) {
+        err.hidden = false; err.textContent = "Custom profession likhna baaki hai.";
+        custom.focus(); return;
+      }
+      var wasEdit = !!existing;
+      if (existing) {
+        existing.company = c; existing.role = role; existing.name = n;
+      } else {
+        var fresh = { id: uid(), company: c, role: role, name: n, created: Date.now() };
+        var at = items.length;
+        if (editing && editing.after) {
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].id === editing.after) { at = i + 1; break; }
+          }
+        }
+        items.splice(at, 0, fresh);
+      }
+      editing = null;
+      persist(); buildFilter(); render();
+      toast(wasEdit ? "Update ho gaya" : "Add ho gaya");
+    }
+    save.addEventListener("click", commit);
+
+    box.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); commit(); }
+      if (e.key === "Escape") { editing = null; render(); }
+    });
+
+    bar.appendChild(cancel);
+    bar.appendChild(save);
+
+    box.appendChild(fields);
+    box.appendChild(err);
+    box.appendChild(bar);
+    box._focusFirst = function () { company.focus(); };
+    return box;
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    if (!editing && pendingRemote) {
+      items = pendingRemote; pendingRemote = null;
+      saveLocal(); buildFilter();
+    }
+
+    rowsEl.textContent = "";
+    var list = visibleItems();
+    var placed = false, focusTarget = null;
+
+    list.forEach(function (it) {
+      if (editing && editing.id === it.id) {
+        var ed = editorNode(it);
+        rowsEl.appendChild(ed);
+        placed = true; focusTarget = ed;
+      } else {
+        rowsEl.appendChild(rowNode(it));
+      }
+      if (editing && !editing.id && editing.after === it.id) {
+        var ed2 = editorNode(null);
+        rowsEl.appendChild(ed2);
+        placed = true; focusTarget = ed2;
+      }
+    });
+
+    if (editing && !placed) {
+      var target = null;
+      if (editing.id) {
+        for (var i = 0; i < items.length; i++) if (items[i].id === editing.id) { target = items[i]; break; }
+      }
+      var ed3 = editorNode(target);
+      rowsEl.appendChild(ed3);
+      focusTarget = ed3;
+    }
+
+    if (!items.length && !editing) {
+      var empty = document.createElement("div");
+      empty.className = "empty";
+      var p = document.createElement("p");
+      p.textContent = "List abhi khaali hai. LinkedIn par jise message kiya, use yahan add karo.";
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "btn btn-primary"; b.textContent = "Pehla person add karo";
+      b.addEventListener("click", startNew);
+      empty.appendChild(p); empty.appendChild(b);
+      rowsEl.appendChild(empty);
+    } else if (items.length && !list.length && !editing) {
+      var none = document.createElement("div");
+      none.className = "empty";
+      none.textContent = "Is search se kuch nahi mila.";
+      rowsEl.appendChild(none);
+    }
+
+    updateTally(list.length);
+    if (focusTarget && focusTarget._focusFirst) focusTarget._focusFirst();
+  }
+
+  function updateTally(shown) {
+    var total = items.length;
+    if (!total) { tallyEl.textContent = "Abhi tak kisi ko message nahi kiya."; return; }
+    var comps = {};
+    items.forEach(function (it) { if (it.company) comps[it.company.trim().toLowerCase()] = 1; });
+    var c = Object.keys(comps).length;
+    var line = "Ab tak " + total + (total === 1 ? " person" : " logo") + " ko message kiya";
+    if (c) line += ", " + c + (c === 1 ? " company" : " companies") + " me";
+    line += ".";
+    if (shown !== total) line += " Filter me " + shown + " dikh rahe hai.";
+    tallyEl.textContent = line;
+  }
+
+  function startNew() {
+    editing = { id: null, after: items.length ? items[items.length - 1].id : null };
+    render();
+  }
+
+  document.getElementById("addTop").addEventListener("click", startNew);
+  document.getElementById("addBottom").addEventListener("click", startNew);
+  searchEl.addEventListener("input", function () { if (!editing) render(); });
+  filterEl.addEventListener("change", function () { if (!editing) render(); });
+
+  /* ---------- boot ---------- */
+  items = loadLocal();
+  buildFilter();
+  render();
+
+  if (FIREBASE_CONFIG) {
+    setNote("Cloud se connect ho raha hai...");
+    Promise.all([
+      import(FIRESTORE_CDN + "firebase-app.js"),
+      import(FIRESTORE_CDN + "firebase-firestore.js")
+    ]).then(function (mods) {
+      var appMod = mods[0], fsMod = mods[1];
+      var app = appMod.initializeApp(FIREBASE_CONFIG);
+      var db = fsMod.getFirestore(app);
+      var docRef = fsMod.doc(db, "tracker", "data");
+      cloud = {
+        docRef: docRef,
+        setDoc: function (ref, data) { return fsMod.setDoc(ref, data); }
+      };
+      setNote(null);
+      fsMod.onSnapshot(docRef, function (snap) {
+        if (snap.metadata && snap.metadata.hasPendingWrites) return;
+        if (snap.exists()) {
+          var data = snap.data() || {};
+          if (!Array.isArray(data.items)) { firstSnap = false; return; }
+          var remote = data.items.slice();
+          if (firstSnap && localDirty) {
+            var ids = {};
+            remote.forEach(function (r) { ids[r.id] = 1; });
+            var extra = items.filter(function (x) { return !ids[x.id]; });
+            if (extra.length) {
+              items = remote.concat(extra);
+              firstSnap = false;
+              persist(); buildFilter(); render();
+              return;
+            }
+          }
+          firstSnap = false;
+          if (editing) { pendingRemote = remote; return; }
+          items = remote;
+          saveLocal(); buildFilter(); render();
+        } else {
+          firstSnap = false;
+          if (items.length) persist();
+        }
+      }, function () {
+        cloud = null;
+        setNote("Cloud se connect nahi ho paya. Data is browser me save ho raha hai.");
+      });
+    }).catch(function () {
+      cloud = null;
+      setNote("Cloud setup me gadbad hai. Data is browser me save ho raha hai.");
+    });
+  } else {
+    setNote("Abhi sirf is browser me save ho raha hai. Har device se same data chahiye to upar script ke shuru me diya \"Cloud sync\" wala tarika follow karo.");
+  }
+})();
+</script>
+</body>
+</html>
