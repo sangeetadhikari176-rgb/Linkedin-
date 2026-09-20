@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Who I've messaged</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%232E6E5B'/%3E%3Ccircle%20cx='27'%20cy='27'%20r='13'%20fill='none'%20stroke='white'%20stroke-width='6'/%3E%3Cline%20x1='36'%20y1='36'%20x2='50'%20y2='50'%20stroke='white'%20stroke-width='6'%20stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
@@ -241,6 +242,70 @@
   .panel .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
   .panel .bar .spacer { flex: 1 1 auto; }
 
+  .xray { margin-top: 0; margin-bottom: 22px; }
+  .xray-select { position: relative; }
+  .xray-bar {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; text-align: left;
+    font: inherit; font-size: 14px; font-weight: 500; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 11px 13px; cursor: pointer;
+  }
+  .xray-bar:hover { border-color: var(--accent); }
+  .xray-bar span { overflow-wrap: anywhere; }
+  .xray-bar svg { width: 15px; height: 15px; flex: 0 0 auto; color: var(--ink-soft); transition: transform .15s ease; }
+  .xray-bar[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+  .xray-dd {
+    position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.14); padding: 6px; max-height: 260px; overflow-y: auto;
+  }
+  .xray-dd-item { display: flex; align-items: center; gap: 8px; padding: 8px 9px; border-radius: 6px; cursor: pointer; font-size: 13.5px; }
+  .xray-dd-item span { flex: 1 1 auto; overflow-wrap: anywhere; }
+  .xray-dd-item:hover { background: var(--line-soft); }
+  .xray-dd-item.active { background: var(--chip-bg); color: var(--chip-fg); }
+  .xray-dd-remove {
+    flex: 0 0 auto; border: none; background: transparent; color: var(--ink-soft);
+    font-size: 16px; line-height: 1; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+  }
+  .xray-dd-remove:hover { color: var(--danger); background: var(--line-soft); }
+  .xray-dd-add { display: flex; gap: 6px; padding: 7px 6px 4px; border-top: 1px solid var(--line-soft); margin-top: 4px; }
+  .xray-dd-add input { flex: 1 1 auto; font-size: 13px; }
+  .xray-dd-empty { padding: 10px 9px; color: var(--ink-soft); font-size: 13px; }
+
+  .xray-fields { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 14px 0; }
+  .xray-fields input { flex: 1 1 180px; max-width: 280px; text-align: center; }
+
+  .xray-result {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 15px; border-radius: 8px;
+    background: var(--accent); color: var(--on-accent);
+    cursor: pointer; font-weight: 500; font-size: 14px;
+  }
+  .xray-result span { overflow-wrap: anywhere; }
+  .xray-result svg { width: 16px; height: 16px; flex: 0 0 auto; }
+  .xray-result:hover { background: var(--accent-2); }
+  .xray-result.disabled { opacity: .55; cursor: default; pointer-events: none; }
+
+  .xray-history { margin-top: 10px; position: relative; }
+  .xray-history-btn {
+    font: inherit; font-size: 13px; color: var(--ink-soft);
+    background: transparent; border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px; padding: 4px 2px;
+  }
+  .xray-history-btn:hover { color: var(--accent-2); }
+  .xray-history-btn svg { width: 12px; height: 12px; transition: transform .15s ease; }
+  .xray-history-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .xray-hist-item { display: flex; align-items: center; gap: 8px; padding: 8px 9px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .xray-hist-item:hover { background: var(--line-soft); }
+  .xray-hist-item span { flex: 1 1 auto; overflow-wrap: anywhere; }
+  .xray-hist-clear {
+    width: 100%; text-align: center; padding: 8px; font-size: 12.5px; color: var(--ink-soft);
+    background: transparent; border: none; border-top: 1px solid var(--line-soft); margin-top: 4px; cursor: pointer;
+  }
+  .xray-hist-clear:hover { color: var(--danger); }
+
   #toast {
     position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
     background: var(--ink); color: var(--paper);
@@ -280,6 +345,40 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>
   </header>
+
+  <section class="panel xray" aria-label="LinkedIn X-Ray search">
+    <h2>LinkedIn X-Ray Search</h2>
+    <p>Find LinkedIn profiles straight from Google, without logging into LinkedIn. Pick a pattern, fill in what you know, and open the results.</p>
+
+    <div class="xray-select">
+      <button type="button" class="xray-bar" id="xrayMethodBtn" aria-haspopup="true" aria-expanded="false">
+        <span id="xrayMethodText"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="xray-dd" id="xrayMethodDd" hidden>
+        <div id="xrayMethodList"></div>
+        <div class="xray-dd-add">
+          <input type="text" id="xrayNewMethod" placeholder='New pattern, e.g. site:linkedin.com/in &quot;Name&quot; &quot;Location&quot;' aria-label="New search pattern">
+          <button type="button" class="btn btn-small btn-primary" id="xrayAddMethod">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="xray-fields" id="xrayFields"></div>
+
+    <div class="xray-result" id="xrayResult" role="button" tabindex="0">
+      <span id="xrayResultText"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+    </div>
+
+    <div class="xray-history">
+      <button type="button" class="xray-history-btn" id="xrayHistoryBtn" aria-expanded="false">
+        Recent searches
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="xray-dd" id="xrayHistoryDd" hidden></div>
+    </div>
+  </section>
 
   <div class="controls">
     <input type="search" id="search" placeholder="Search by name, company or profession" aria-label="Search">
@@ -1051,6 +1150,255 @@ const FIREBASE_CONFIG = {
     toast("Disconnected");
     setTimeout(function () { location.reload(); }, 400);
   });
+
+  /* ---------- X-Ray search ---------- */
+  var XRAY_METHODS_KEY  = "xray-methods-v1";
+  var XRAY_SELECTED_KEY = "xray-selected-v1";
+  var XRAY_HISTORY_KEY  = "xray-history-v1";
+  var XRAY_DEFAULT_METHODS = [
+    'site:linkedin.com/in "Name" "Company"',
+    'site:linkedin.com/in "Name" "Role" "Company"'
+  ];
+
+  var xrayMethodBtn    = document.getElementById("xrayMethodBtn");
+  var xrayMethodText   = document.getElementById("xrayMethodText");
+  var xrayMethodDd     = document.getElementById("xrayMethodDd");
+  var xrayMethodList   = document.getElementById("xrayMethodList");
+  var xrayNewMethodEl  = document.getElementById("xrayNewMethod");
+  var xrayAddMethodBtn = document.getElementById("xrayAddMethod");
+  var xrayFieldsEl     = document.getElementById("xrayFields");
+  var xrayResultEl     = document.getElementById("xrayResult");
+  var xrayResultText   = document.getElementById("xrayResultText");
+  var xrayHistoryBtn   = document.getElementById("xrayHistoryBtn");
+  var xrayHistoryDd    = document.getElementById("xrayHistoryDd");
+
+  var xrayMethods  = [];      // saved search patterns, never cleared unless removed
+  var xraySelected = 0;       // index into xrayMethods
+  var xrayValues   = {};      // field label -> typed value
+  var xrayHistory  = [];      // [{ q, url, t }], most recent first
+
+  function xrayLoadMethods() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(XRAY_METHODS_KEY) || "null"); } catch (e) {}
+    xrayMethods = (Array.isArray(saved) && saved.length) ? saved : XRAY_DEFAULT_METHODS.slice();
+    var idx = 0;
+    try { idx = parseInt(localStorage.getItem(XRAY_SELECTED_KEY), 10); } catch (e) {}
+    xraySelected = (idx >= 0 && idx < xrayMethods.length) ? idx : 0;
+  }
+  function xraySaveMethods()  { try { localStorage.setItem(XRAY_METHODS_KEY, JSON.stringify(xrayMethods)); } catch (e) {} }
+  function xraySaveSelected() { try { localStorage.setItem(XRAY_SELECTED_KEY, String(xraySelected)); } catch (e) {} }
+  function xrayLoadHistory() {
+    try { xrayHistory = JSON.parse(localStorage.getItem(XRAY_HISTORY_KEY) || "[]"); }
+    catch (e) { xrayHistory = []; }
+    if (!Array.isArray(xrayHistory)) xrayHistory = [];
+  }
+  function xraySaveHistory() {
+    try { localStorage.setItem(XRAY_HISTORY_KEY, JSON.stringify(xrayHistory.slice(0, 40))); } catch (e) {}
+  }
+
+  function xrayFieldLabels(template) {
+    var out = [], re = /"([^"]*)"/g, m;
+    while ((m = re.exec(template))) out.push(m[1] || ("Field " + (out.length + 1)));
+    return out;
+  }
+  function xrayCurrentTemplate() { return xrayMethods[xraySelected] || ""; }
+  function xrayBuildQuery() {
+    return xrayCurrentTemplate().replace(/"([^"]*)"/g, function (whole, label) {
+      var val = str(xrayValues[label]);
+      return val ? ('"' + val.replace(/"/g, "") + '"') : "";
+    }).replace(/\s{2,}/g, " ").trim();
+  }
+
+  function xrayRenderMethodButton() {
+    xrayMethodText.textContent = xrayCurrentTemplate() || "Add a search pattern below";
+  }
+
+  function xrayRenderFields() {
+    var labels = xrayFieldLabels(xrayCurrentTemplate());
+    xrayFieldsEl.innerHTML = "";
+    labels.forEach(function (label) {
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.placeholder = label;
+      inp.setAttribute("aria-label", label);
+      inp.value = xrayValues[label] || "";
+      inp.addEventListener("input", function () {
+        xrayValues[label] = inp.value;
+        xrayRenderResult();
+      });
+      xrayFieldsEl.appendChild(inp);
+    });
+    xrayRenderResult();
+  }
+
+  function xrayHasAnyValue() {
+    var labels = xrayFieldLabels(xrayCurrentTemplate());
+    for (var i = 0; i < labels.length; i++) {
+      if (str(xrayValues[labels[i]])) return true;
+    }
+    return false;
+  }
+  function xrayRenderResult() {
+    var filled = xrayHasAnyValue();
+    xrayResultText.textContent = filled ? xrayBuildQuery() : "Fill in a field above to build your search";
+    xrayResultEl.classList.toggle("disabled", !filled);
+  }
+
+  function xrayRenderMethodList() {
+    xrayMethodList.innerHTML = "";
+    if (!xrayMethods.length) {
+      var empty = document.createElement("div");
+      empty.className = "xray-dd-empty";
+      empty.textContent = "No saved patterns yet — add one below.";
+      xrayMethodList.appendChild(empty);
+      return;
+    }
+    xrayMethods.forEach(function (m, i) {
+      var row = document.createElement("div");
+      row.className = "xray-dd-item" + (i === xraySelected ? " active" : "");
+      var span = document.createElement("span");
+      span.textContent = m;
+      row.appendChild(span);
+      row.addEventListener("click", function () {
+        xraySelected = i;
+        xraySaveSelected();
+        xrayCloseMethodDd();
+        xrayRenderMethodButton();
+        xrayRenderMethodList();
+        xrayRenderFields();
+      });
+      if (xrayMethods.length > 1) {
+        var rm = document.createElement("button");
+        rm.type = "button";
+        rm.className = "xray-dd-remove";
+        rm.setAttribute("aria-label", "Remove this pattern");
+        rm.textContent = "\u00d7";
+        rm.addEventListener("click", function (e) {
+          e.stopPropagation();
+          xrayMethods.splice(i, 1);
+          if (xraySelected >= xrayMethods.length) xraySelected = xrayMethods.length - 1;
+          xraySaveMethods(); xraySaveSelected();
+          xrayRenderMethodList(); xrayRenderMethodButton(); xrayRenderFields();
+          toast("Pattern removed");
+        });
+        row.appendChild(rm);
+      }
+      xrayMethodList.appendChild(row);
+    });
+  }
+
+  function xrayAddMethod() {
+    var val = str(xrayNewMethodEl.value);
+    if (!val) return;
+    if (xrayFieldLabels(val).length === 0) {
+      toast('Wrap each field in quotes, like "Name"');
+      return;
+    }
+    var idx = xrayMethods.indexOf(val);
+    if (idx === -1) { xrayMethods.push(val); idx = xrayMethods.length - 1; }
+    xraySelected = idx;
+    xrayNewMethodEl.value = "";
+    xraySaveMethods(); xraySaveSelected();
+    xrayRenderMethodList(); xrayRenderMethodButton(); xrayRenderFields();
+    toast("Pattern added");
+  }
+
+  function xrayOpenMethodDd() {
+    xrayCloseHistoryDd();
+    xrayMethodDd.hidden = false;
+    xrayMethodBtn.setAttribute("aria-expanded", "true");
+  }
+  function xrayCloseMethodDd() {
+    xrayMethodDd.hidden = true;
+    xrayMethodBtn.setAttribute("aria-expanded", "false");
+  }
+  function xrayOpenHistoryDd() {
+    xrayCloseMethodDd();
+    xrayRenderHistory();
+    xrayHistoryDd.hidden = false;
+    xrayHistoryBtn.setAttribute("aria-expanded", "true");
+  }
+  function xrayCloseHistoryDd() {
+    xrayHistoryDd.hidden = true;
+    xrayHistoryBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function xrayRenderHistory() {
+    xrayHistoryDd.innerHTML = "";
+    if (!xrayHistory.length) {
+      var empty = document.createElement("div");
+      empty.className = "xray-dd-empty";
+      empty.textContent = "Searches you run will show up here.";
+      xrayHistoryDd.appendChild(empty);
+      return;
+    }
+    xrayHistory.forEach(function (h) {
+      var row = document.createElement("div");
+      row.className = "xray-hist-item";
+      var span = document.createElement("span");
+      span.textContent = h.q;
+      row.appendChild(span);
+      row.addEventListener("click", function () {
+        window.open(h.url, "_blank", "noopener");
+      });
+      xrayHistoryDd.appendChild(row);
+    });
+    var clear = document.createElement("button");
+    clear.type = "button";
+    clear.className = "xray-hist-clear";
+    clear.textContent = "Clear history";
+    clear.addEventListener("click", function (e) {
+      e.stopPropagation();
+      xrayHistory = [];
+      xraySaveHistory();
+      xrayRenderHistory();
+    });
+    xrayHistoryDd.appendChild(clear);
+  }
+
+  function xrayRunSearch() {
+    if (!xrayHasAnyValue()) { toast("Fill in at least one field first"); return; }
+    var q = xrayBuildQuery();
+    var url = "https://www.google.com/search?q=" + encodeURIComponent(q);
+    window.open(url, "_blank", "noopener");
+    xrayHistory = xrayHistory.filter(function (h) { return h.q !== q; });
+    xrayHistory.unshift({ q: q, url: url, t: Date.now() });
+    if (xrayHistory.length > 40) xrayHistory.length = 40;
+    xraySaveHistory();
+  }
+
+  function initXray() {
+    xrayLoadMethods();
+    xrayLoadHistory();
+    xrayRenderMethodButton();
+    xrayRenderMethodList();
+    xrayRenderFields();
+
+    xrayMethodBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (xrayMethodDd.hidden) xrayOpenMethodDd(); else xrayCloseMethodDd();
+    });
+    xrayAddMethodBtn.addEventListener("click", xrayAddMethod);
+    xrayNewMethodEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); xrayAddMethod(); }
+    });
+    xrayResultEl.addEventListener("click", xrayRunSearch);
+    xrayResultEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); xrayRunSearch(); }
+    });
+    xrayHistoryBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (xrayHistoryDd.hidden) xrayOpenHistoryDd(); else xrayCloseHistoryDd();
+    });
+    document.addEventListener("click", function (e) {
+      if (!xrayMethodDd.hidden && !xrayMethodBtn.contains(e.target) && !xrayMethodDd.contains(e.target)) xrayCloseMethodDd();
+      if (!xrayHistoryDd.hidden && !xrayHistoryBtn.contains(e.target) && !xrayHistoryDd.contains(e.target)) xrayCloseHistoryDd();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { xrayCloseMethodDd(); xrayCloseHistoryDd(); }
+    });
+  }
+  initXray();
 
   /* ---------- boot ---------- */
   items = loadLocal();
