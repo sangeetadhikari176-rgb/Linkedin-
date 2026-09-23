@@ -187,6 +187,35 @@
   .status.yes .dot { background: var(--accent); border-color: var(--accent); }
   .status:hover { border-color: var(--accent); }
 
+  .icon-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .sel-check { width: 21px; height: 21px; accent-color: var(--accent); cursor: pointer; }
+  .row.selected { background: var(--line-soft); }
+
+  .bulk-select { position: relative; flex: 0 0 auto; }
+  .bulk-dd {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 6;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.14); padding: 6px; min-width: 250px;
+  }
+  .bulk-item {
+    display: block; width: 100%; text-align: left;
+    font: inherit; font-size: 13.5px; color: var(--ink);
+    background: transparent; border: none; border-radius: 6px;
+    padding: 9px 10px; cursor: pointer;
+  }
+  .bulk-item:hover { background: var(--line-soft); }
+  .bulk-item .t { display: block; font-weight: 500; }
+  .bulk-item .s { display: block; color: var(--ink-soft); font-size: 12px; margin-top: 2px; }
+  .bulk-item.danger .t { color: var(--danger); }
+  .bulk-item:disabled { opacity: .5; cursor: default; pointer-events: none; }
+
+  .select-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 11px 16px; border-bottom: 1px solid var(--line); background: var(--line-soft);
+  }
+  .select-bar .count { font-weight: 500; font-size: 13.5px; }
+  .select-bar .spacer { flex: 1 1 auto; }
+
   .empty { padding: 44px 20px; text-align: center; color: var(--ink-soft); }
   .empty p { margin: 0 0 14px; }
 
@@ -274,7 +303,7 @@
   .xray-dd-add input { flex: 1 1 auto; font-size: 13px; }
   .xray-dd-empty { padding: 10px 9px; color: var(--ink-soft); font-size: 13px; }
 
-  .xray-fields { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 14px 0; }
+  .xray-fields { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 10px; margin: 14px 0; }
   .xray-fields input { flex: 1 1 180px; max-width: 280px; text-align: center; }
 
   .xray-result {
@@ -305,6 +334,76 @@
     background: transparent; border: none; border-top: 1px solid var(--line-soft); margin-top: 4px; cursor: pointer;
   }
   .xray-hist-clear:hover { color: var(--danger); }
+
+  /* role picker: a saved list of roles you can pick, add, rename or delete */
+  .xray-role { flex: 1 1 180px; max-width: 280px; display: flex; flex-direction: column; gap: 8px; }
+  .xray-role-anchor { position: relative; }
+  .xray-role-btn {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font: inherit; text-align: left; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px 11px; cursor: pointer;
+  }
+  .xray-role-btn:hover { border-color: var(--accent); }
+  /* .sp balances the chevron so the label sits dead centre, like the fields beside it */
+  .xray-role-btn .sp { flex: 0 0 auto; width: 15px; }
+  .xray-role-btn .lab { flex: 1 1 auto; text-align: center; overflow-wrap: anywhere; }
+  .xray-role-btn.placeholder .lab { color: var(--ink-soft); opacity: .85; }
+  .xray-role-btn svg { width: 15px; height: 15px; flex: 0 0 auto; color: var(--ink-soft); transition: transform .15s ease; }
+  .xray-role-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .xray-role-dd {
+    position: absolute; left: 0; top: calc(100% + 6px); z-index: 6;
+    width: 100%; min-width: 230px; max-width: 320px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.14); padding: 6px; max-height: 300px; overflow-y: auto;
+  }
+  .xray-role input { max-width: none; flex: 1 1 auto; }
+  .xray-role-dd input { text-align: left; }
+
+  .xray-dd-item.with-menu { padding-right: 4px; }
+  .xray-dd-item.plain { color: var(--ink-soft); }
+  .xray-dd-item.plain.active { color: var(--chip-fg); }
+  .xray-kebab {
+    flex: 0 0 auto; display: inline-flex; align-items: center;
+    border: none; background: transparent; color: var(--ink-soft);
+    padding: 4px 5px; border-radius: 6px; cursor: pointer;
+  }
+  .xray-kebab:hover, .xray-kebab.open { background: var(--line-soft); color: var(--ink); }
+  .xray-kebab svg { width: 15px; height: 15px; }
+  .xray-menu {
+    display: flex; gap: 4px; width: max-content; max-width: 100%;
+    margin: 2px 4px 6px auto; padding: 5px;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--surface); box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  }
+  .xray-menu button {
+    font: inherit; font-size: 13px; font-weight: 500;
+    padding: 5px 12px; border-radius: 6px;
+    border: none; background: transparent; color: var(--ink); cursor: pointer;
+  }
+  .xray-menu button:hover { background: var(--line-soft); }
+  .xray-menu button.danger { color: var(--danger); }
+  .xray-inline-edit { display: flex; gap: 6px; padding: 4px 4px 8px; }
+  .xray-inline-edit input { flex: 1 1 auto; min-width: 0; font-size: 13px; }
+
+  .modal {
+    position: fixed; inset: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    background: rgba(12, 20, 17, .5);
+  }
+  .modal[hidden] { display: none; }
+  .modal-card {
+    width: 100%; max-width: 390px; padding: 20px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 18px 44px rgba(0,0,0,.3);
+  }
+  .modal-card h3 {
+    font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+    font-size: 23px; line-height: 1.2; margin: 0 0 8px;
+  }
+  .modal-card p { margin: 0; color: var(--ink-soft); font-size: 14px; overflow-wrap: anywhere; }
+  .modal-bar { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+  .modal-bar .btn-danger { border-color: var(--danger); }
 
   #toast {
     position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
@@ -389,11 +488,25 @@
       <button type="button" class="seg-btn" data-filter="yes">Accepted</button>
       <button type="button" class="seg-btn" data-filter="no">Not accepted</button>
     </div>
+    <div class="bulk-select" id="bulkSelect">
+      <button type="button" class="icon-btn" id="bulkBtn" title="Delete multiple" aria-haspopup="true" aria-expanded="false" aria-label="Delete multiple entries">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13M10 11v6M14 11v6"/></svg>
+      </button>
+      <div class="bulk-dd" id="bulkDd" hidden></div>
+    </div>
   </div>
 
   <section class="ledger" aria-label="Message list">
     <div class="grid head" aria-hidden="true">
       <span>Company</span><span>Work profession</span><span>Name</span><span>Request</span><span>Edit</span>
+    </div>
+    <div class="select-bar" id="selectBar" hidden>
+      <span class="count" id="selectCount"></span>
+      <button type="button" class="btn btn-small" id="selectAllBtn">Select all</button>
+      <button type="button" class="btn btn-small" id="selectClearBtn">Clear</button>
+      <span class="spacer"></span>
+      <span id="selectDeleteSlot"></span>
+      <button type="button" class="btn btn-small" id="selectDoneBtn">Done</button>
     </div>
     <div id="rows"></div>
     <button class="add-row" id="addBottom" type="button">
@@ -411,31 +524,37 @@
 
   <section class="panel" id="cloudPanel" hidden aria-label="Cloud sync setup">
     <h2>Use the same list on every device</h2>
-    <p>By default this list is saved inside this browser only. Connect a free Firebase (Firestore) database and the list lives online instead, so your phone, laptop and any other device all show the same data.</p>
-    <ol>
-      <li>Create a free project at console.firebase.google.com</li>
-      <li>Open Build &rsaquo; Firestore Database &rsaquo; Create database &rsaquo; start in test mode.</li>
-      <li>In the Rules tab, paste the rules below and press Publish.</li>
-      <li>Open Project settings &rsaquo; Your apps &rsaquo; Web (&lt;/&gt;) and register a web app.</li>
-      <li>Copy the <code>firebaseConfig</code> object it shows you and paste it in the box below.</li>
-    </ol>
+    <p>A Firebase (Firestore) database is already built into this page, so the list lives online rather than in one browser. Your phone, laptop and any other device that opens this page show the same data, and changes appear on the others within a second. There is nothing to set up.</p>
+    <p class="note" id="cloudStatus"></p>
+    <p>The only thing kept outside this file is the database's rules. In the Firebase console open Firestore Database &rsaquo; Rules and make sure these are published, otherwise the page can load but not save:</p>
 <pre>rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /tracker/data { allow read, write: if true; }
   }
 }</pre>
-    <p>These rules let anyone who has your config edit the data, which is fine for a personal list — just keep sensitive information out of it.</p>
-    <textarea id="cloudCfg" placeholder='{ "apiKey": "AIza…", "authDomain": "your-project.firebaseapp.com", "projectId": "your-project", "storageBucket": "your-project.appspot.com", "messagingSenderId": "…", "appId": "…" }' aria-label="Firebase config"></textarea>
-    <p class="note">Pasting it here connects this device only, and it stays saved even after you upload a new version of the file. To connect every device automatically, paste the same config into the <code>FIREBASE_CONFIG</code> line near the top of this file's script instead.</p>
+    <p>These rules let anyone who has the config inside this file edit the data, which is fine for a personal list — just keep sensitive information out of it.</p>
+    <p class="note">Only if you ever want <em>this one device</em> to use a different Firebase project: paste that project's <code>firebaseConfig</code> below and press Connect. It is saved in this browser alone and overrides the built-in project until you press “Use the built-in project”.</p>
+    <textarea id="cloudCfg" placeholder='{ "apiKey": "AIza…", "authDomain": "your-project.firebaseapp.com", "projectId": "your-project", "storageBucket": "your-project.appspot.com", "messagingSenderId": "…", "appId": "…" }' aria-label="Firebase config for this device"></textarea>
     <div class="bar">
-      <button class="btn btn-danger" id="cloudClear" type="button">Disconnect</button>
+      <button class="btn btn-danger" id="cloudClear" type="button">Use the built-in project</button>
       <span class="spacer"></span>
       <button class="btn" id="cloudClose" type="button">Close</button>
       <button class="btn btn-primary" id="cloudSave" type="button">Connect</button>
     </div>
   </section>
 </main>
+
+<div class="modal" id="confirmModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmBody"></p>
+    <div class="modal-bar">
+      <button type="button" class="btn" id="confirmCancel">Cancel</button>
+      <button type="button" class="btn btn-danger" id="confirmOk">Delete</button>
+    </div>
+  </div>
+</div>
 
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -459,22 +578,25 @@ service cloud.firestore {
    if you ever need to put the entries back.
 
    SAME LIST ON EVERY DEVICE
-   Fill in FIREBASE_CONFIG below (free Firebase Firestore project)
-   and every device that opens this page shares one list. The setup
-   steps are in the "Cloud sync" panel inside the page, and you can
-   also paste the config there instead of editing this file.
+   FIREBASE_CONFIG below is filled in with the Firestore project
+   "linkedin-tracker-f4aec", so every device that opens this page
+   shares one list with no setup. Keep this block exactly as it is
+   when you upload a new version of the file — emptying it drops
+   every device back to browser-only storage.
+
+   The database also needs its rules published (Firestore Database
+   > Rules in the Firebase console); the exact rules are shown in
+   the "Cloud sync" panel inside the page.
 =========================================================== */
-const FIREBASE_CONFIG = null;
-/* Example — put your own values here:
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSy...",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "...",
-  appId: "..."
+  apiKey: "AIzaSyAOC7FTs-888JfoGlyDGOKUoeVl8gfKHCY",
+  authDomain: "linkedin-tracker-f4aec.firebaseapp.com",
+  projectId: "linkedin-tracker-f4aec",
+  storageBucket: "linkedin-tracker-f4aec.firebasestorage.app",
+  messagingSenderId: "159893827242",
+  appId: "1:159893827242:web:9bfad7f81db3a5865f2ad3",
+  measurementId: "G-RVQS6ZK8JT"
 };
-*/
 
 (function () {
   "use strict";
@@ -513,7 +635,18 @@ const FIREBASE_CONFIG = {
   var toastEl   = document.getElementById("toast");
   var panelEl   = document.getElementById("cloudPanel");
   var cfgEl     = document.getElementById("cloudCfg");
+  var cloudStatusEl = document.getElementById("cloudStatus");
   var fileEl    = document.getElementById("importFile");
+  var addTopEl    = document.getElementById("addTop");
+  var addBottomEl = document.getElementById("addBottom");
+  var bulkBtnEl   = document.getElementById("bulkBtn");
+  var bulkDdEl    = document.getElementById("bulkDd");
+  var selectBarEl = document.getElementById("selectBar");
+  var selectCountEl = document.getElementById("selectCount");
+  var selectDeleteSlotEl = document.getElementById("selectDeleteSlot");
+
+  var selectMode = false;      // true while picking entries to delete together
+  var selectedIds = {};        // id -> true, while selectMode is on
 
   /* ---------- small helpers ---------- */
   function uid() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -547,6 +680,174 @@ const FIREBASE_CONFIG = {
       : "M12 5v14M5 12h14");
     svg.appendChild(p);
     return svg;
+  }
+
+  /* ---------- confirmation pop-up ---------- */
+  var confirmEl       = document.getElementById("confirmModal");
+  var confirmTitleEl  = document.getElementById("confirmTitle");
+  var confirmBodyEl   = document.getElementById("confirmBody");
+  var confirmOkEl     = document.getElementById("confirmOk");
+  var confirmCancelEl = document.getElementById("confirmCancel");
+  var confirmAction   = null;   // what to run when "Delete" is tapped
+  var confirmReturnTo = null;   // element that had focus before the pop-up opened
+
+  function closeConfirm() {
+    confirmEl.hidden = true;
+    confirmAction = null;
+    var back = confirmReturnTo;
+    confirmReturnTo = null;
+    if (back && document.contains(back) && back.offsetParent !== null) back.focus();
+  }
+  // confirmDialog({ title, body, confirmLabel, onConfirm })
+  function confirmDialog(opts) {
+    confirmAction = opts.onConfirm || null;
+    confirmReturnTo = document.activeElement;
+    confirmTitleEl.textContent = opts.title || "Are you sure?";
+    confirmBodyEl.textContent = opts.body || "";
+    confirmBodyEl.hidden = !opts.body;
+    confirmOkEl.textContent = opts.confirmLabel || "Delete";
+    confirmEl.hidden = false;
+    confirmOkEl.focus();
+  }
+  confirmOkEl.addEventListener("click", function () {
+    var run = confirmAction;
+    closeConfirm();
+    if (run) run();
+  });
+  confirmCancelEl.addEventListener("click", closeConfirm);
+  confirmEl.addEventListener("click", function (e) { if (e.target === confirmEl) closeConfirm(); });
+  // capture phase, so Escape closes the pop-up without also leaving select mode
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !confirmEl.hidden) { e.stopPropagation(); closeConfirm(); }
+  }, true);
+
+  /* ---------- select mode (pick several, delete together) ---------- */
+  function selectedCount() { return Object.keys(selectedIds).length; }
+  function enterSelectMode() {
+    selectMode = true;
+    selectedIds = {};
+    editing = null;
+    render();
+  }
+  function exitSelectMode() {
+    selectMode = false;
+    selectedIds = {};
+    render();
+  }
+  function toggleSelected(id) {
+    if (selectedIds[id]) delete selectedIds[id]; else selectedIds[id] = true;
+    render();
+  }
+  function selectAllVisible() {
+    visibleItems().forEach(function (it) { selectedIds[it.id] = true; });
+    render();
+  }
+  function clearSelection() {
+    selectedIds = {};
+    render();
+  }
+  // A small button that needs a second tap within a few seconds to confirm.
+  function armedDangerButton(label, confirmLabel, onConfirm) {
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "btn btn-danger btn-small";
+    btn.textContent = label;
+    var armed = false, timer = null;
+    btn.addEventListener("click", function () {
+      if (!armed) {
+        armed = true; btn.textContent = confirmLabel;
+        timer = setTimeout(function () { armed = false; btn.textContent = label; }, 4000);
+        return;
+      }
+      clearTimeout(timer);
+      onConfirm();
+    });
+    return btn;
+  }
+  function renderSelectBar() {
+    selectBarEl.hidden = !selectMode;
+    if (!selectMode) return;
+    var n = selectedCount();
+    selectCountEl.textContent = n ? (n + " selected") : "Tap entries to select them";
+    selectDeleteSlotEl.textContent = "";
+    if (n) {
+      var delBtn = armedDangerButton(
+        "Delete selected (" + n + ")",
+        "Tap again to delete " + n,
+        function () {
+          var count = selectedCount();
+          items = items.filter(function (x) { return !selectedIds[x.id]; });
+          selectedIds = {};
+          persist(); buildFilter();
+          toast(count + (count === 1 ? " entry deleted" : " entries deleted"));
+          render();
+        }
+      );
+      selectDeleteSlotEl.appendChild(delBtn);
+    }
+  }
+
+  /* ---------- bulk-delete dropdown (dustbin button) ---------- */
+  function bulkOption(title, sub, danger) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "bulk-item" + (danger ? " danger" : "");
+    var t = document.createElement("span"); t.className = "t"; t.textContent = title;
+    b.appendChild(t);
+    if (sub) {
+      var s = document.createElement("span"); s.className = "s"; s.textContent = sub;
+      b.appendChild(s);
+    }
+    return b;
+  }
+  function wireArmedOption(btn, normalLabel, confirmLabel, onConfirm) {
+    var armed = false, timer = null;
+    var tEl = btn.querySelector(".t");
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (!armed) {
+        armed = true; tEl.textContent = confirmLabel;
+        timer = setTimeout(function () { armed = false; tEl.textContent = normalLabel; }, 4000);
+        return;
+      }
+      clearTimeout(timer);
+      onConfirm();
+    });
+  }
+  function openBulkDd() {
+    bulkDdEl.textContent = "";
+    var acceptedCount = items.filter(function (x) { return x.accepted; }).length;
+    var notAcceptedCount = items.length - acceptedCount;
+
+    var opt1 = bulkOption("Select entries to delete", "Tap the ones you want, then delete together");
+    opt1.addEventListener("click", function () { closeBulkDd(); enterSelectMode(); });
+    bulkDdEl.appendChild(opt1);
+
+    var opt2 = bulkOption("Delete all accepted",
+      acceptedCount ? (acceptedCount + (acceptedCount === 1 ? " entry" : " entries")) : "None yet", true);
+    if (!acceptedCount) opt2.disabled = true;
+    wireArmedOption(opt2, "Delete all accepted", "Tap again to delete " + acceptedCount, function () {
+      items = items.filter(function (x) { return !x.accepted; });
+      persist(); buildFilter(); closeBulkDd(); render();
+      toast(acceptedCount + (acceptedCount === 1 ? " entry deleted" : " entries deleted"));
+    });
+    bulkDdEl.appendChild(opt2);
+
+    var opt3 = bulkOption("Delete all not accepted",
+      notAcceptedCount ? (notAcceptedCount + (notAcceptedCount === 1 ? " entry" : " entries")) : "None", true);
+    if (!notAcceptedCount) opt3.disabled = true;
+    wireArmedOption(opt3, "Delete all not accepted", "Tap again to delete " + notAcceptedCount, function () {
+      items = items.filter(function (x) { return x.accepted; });
+      persist(); buildFilter(); closeBulkDd(); render();
+      toast(notAcceptedCount + (notAcceptedCount === 1 ? " entry deleted" : " entries deleted"));
+    });
+    bulkDdEl.appendChild(opt3);
+
+    bulkDdEl.hidden = false;
+    bulkBtnEl.setAttribute("aria-expanded", "true");
+  }
+  function closeBulkDd() {
+    bulkDdEl.hidden = true;
+    bulkBtnEl.setAttribute("aria-expanded", "false");
   }
 
   /* ---------- LinkedIn links ---------- */
@@ -745,22 +1046,32 @@ const FIREBASE_CONFIG = {
     var acts = document.createElement("div");
     acts.className = "acts";
 
-    var edit = document.createElement("button");
-    edit.type = "button"; edit.className = "icon-btn";
-    edit.title = "Edit";
-    edit.setAttribute("aria-label", "Edit " + (it.name || it.company || "entry"));
-    edit.appendChild(icon("pencil"));
-    edit.addEventListener("click", function () { editing = { id: it.id, after: null }; render(); });
+    if (selectMode) {
+      var cb = document.createElement("input");
+      cb.type = "checkbox"; cb.className = "sel-check";
+      cb.checked = !!selectedIds[it.id];
+      cb.setAttribute("aria-label", "Select " + (it.name || it.company || "entry"));
+      cb.addEventListener("change", function () { toggleSelected(it.id); });
+      acts.appendChild(cb);
+      if (selectedIds[it.id]) row.classList.add("selected");
+    } else {
+      var edit = document.createElement("button");
+      edit.type = "button"; edit.className = "icon-btn";
+      edit.title = "Edit";
+      edit.setAttribute("aria-label", "Edit " + (it.name || it.company || "entry"));
+      edit.appendChild(icon("pencil"));
+      edit.addEventListener("click", function () { editing = { id: it.id, after: null }; render(); });
 
-    var plus = document.createElement("button");
-    plus.type = "button"; plus.className = "icon-btn";
-    plus.title = "Add below this one";
-    plus.setAttribute("aria-label", "Add a new person below this one");
-    plus.appendChild(icon("plus"));
-    plus.addEventListener("click", function () { editing = { id: null, after: it.id }; render(); });
+      var plus = document.createElement("button");
+      plus.type = "button"; plus.className = "icon-btn";
+      plus.title = "Add below this one";
+      plus.setAttribute("aria-label", "Add a new person below this one");
+      plus.appendChild(icon("plus"));
+      plus.addEventListener("click", function () { editing = { id: null, after: it.id }; render(); });
 
-    acts.appendChild(edit);
-    acts.appendChild(plus);
+      acts.appendChild(edit);
+      acts.appendChild(plus);
+    }
 
     row.appendChild(company);
     row.appendChild(roleCell);
@@ -971,6 +1282,11 @@ const FIREBASE_CONFIG = {
       saveLocal(); buildFilter();
     }
 
+    addTopEl.hidden = selectMode;
+    addBottomEl.hidden = selectMode;
+    bulkBtnEl.classList.toggle("active", selectMode);
+    renderSelectBar();
+
     rowsEl.textContent = "";
     var list = visibleItems();
     var placed = false, focusTarget = null;
@@ -1084,9 +1400,20 @@ const FIREBASE_CONFIG = {
 
   /* ---------- cloud config stored in this browser ---------- */
   function parseConfig(text) {
-    var m = String(text || "").match(/\{[\s\S]*\}/);
-    if (!m) return null;
-    var raw = m[0];
+    var s = String(text || "");
+    // Locate the { ... } that belongs to firebaseConfig specifically, by
+    // counting braces, so pasting the whole snippet (imports included)
+    // doesn't grab an unrelated "{" from an import statement.
+    var anchor = s.search(/firebaseConfig\s*=/);
+    var start = s.indexOf("{", anchor > -1 ? anchor : 0);
+    if (start === -1) return null;
+    var depth = 0, end = -1;
+    for (var i = start; i < s.length; i++) {
+      if (s[i] === "{") depth++;
+      else if (s[i] === "}") { depth--; if (depth === 0) { end = i; break; } }
+    }
+    if (end === -1) return null;
+    var raw = s.slice(start, end + 1);
     try { return JSON.parse(raw); } catch (e) {}
     try {
       var fixed = raw
@@ -1100,9 +1427,21 @@ const FIREBASE_CONFIG = {
     try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || "null"); }
     catch (e) { return null; }
   }
+  // says which project is in use and whether the page actually reached it
+  function cloudStatusText() {
+    var saved = storedConfig();
+    var cfg = saved || FIREBASE_CONFIG;
+    if (!cfg) return "Not connected. This list is saved in this browser only.";
+    var name = cfg.projectId || "the Firebase project";
+    // only claim "Connected" for the project this page actually reached
+    var live = !!cloud && activeConfig && activeConfig.projectId === cfg.projectId;
+    return (live ? "Connected to " : "Connecting to ") + name +
+      (saved ? " \u2014 set on this device only." : " \u2014 built into this page, so every device uses it.");
+  }
   function openPanel() {
     var saved = storedConfig();
     cfgEl.value = saved ? JSON.stringify(saved, null, 2) : "";
+    cloudStatusEl.textContent = cloudStatusText();
     panelEl.hidden = false;
     panelEl.scrollIntoView({ block: "start" });
     cfgEl.focus();
@@ -1147,8 +1486,25 @@ const FIREBASE_CONFIG = {
   });
   document.getElementById("cloudClear").addEventListener("click", function () {
     try { localStorage.removeItem(CONFIG_KEY); } catch (e) {}
-    toast("Disconnected");
+    // dropping the per-device config falls back to FIREBASE_CONFIG, not to browser-only
+    toast(FIREBASE_CONFIG ? "Back to the built-in project" : "Disconnected");
     setTimeout(function () { location.reload(); }, 400);
+  });
+
+  bulkBtnEl.addEventListener("click", function (e) {
+    e.stopPropagation();
+    if (bulkDdEl.hidden) openBulkDd(); else closeBulkDd();
+  });
+  document.getElementById("selectAllBtn").addEventListener("click", selectAllVisible);
+  document.getElementById("selectClearBtn").addEventListener("click", clearSelection);
+  document.getElementById("selectDoneBtn").addEventListener("click", exitSelectMode);
+  document.addEventListener("click", function (e) {
+    if (!bulkDdEl.hidden && !bulkBtnEl.contains(e.target) && !bulkDdEl.contains(e.target)) closeBulkDd();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (!bulkDdEl.hidden) closeBulkDd();
+    else if (selectMode) exitSelectMode();
   });
 
   /* ---------- X-Ray search ---------- */
@@ -1172,10 +1528,36 @@ const FIREBASE_CONFIG = {
   var xrayHistoryBtn   = document.getElementById("xrayHistoryBtn");
   var xrayHistoryDd    = document.getElementById("xrayHistoryDd");
 
+  var XRAY_ROLES_KEY = "xray-roles-v1";
+  var XRAY_DEFAULT_ROLES = [
+    "Sales Manager",
+    "CRM Administrator",
+    "Inventory",
+    "Catalog Manager",
+    "E-commerce",
+    "Marketing Manager",
+    "Marketing Ops",
+    "Ops Manager",
+    "Finance Manager",
+    "Accountant",
+    "Support Manager",
+    "HR Manager",
+    "Recruitment Coordinator"
+  ];
+
   var xrayMethods  = [];      // saved search patterns, never cleared unless removed
   var xraySelected = 0;       // index into xrayMethods
   var xrayValues   = {};      // field label -> typed value
   var xrayHistory  = [];      // [{ q, url, t }], most recent first
+
+  var xrayMethodMenuAt = -1;  // pattern whose 3-dot menu is open
+  var xrayMethodEditAt = -1;  // pattern being renamed
+
+  var xrayRoles      = [];    // saved roles for the "Role" field
+  var xrayRoleCustom = false; // true while "Custom" is picked
+  var xrayRoleMenuAt = -1;    // role whose 3-dot menu is open
+  var xrayRoleEditAt = -1;    // role being renamed
+  var xrayRolePicker = null;  // { label, btn, btnText, dd, list, customEl } for the field on screen
 
   function xrayLoadMethods() {
     var saved = null;
@@ -1195,6 +1577,107 @@ const FIREBASE_CONFIG = {
   function xraySaveHistory() {
     try { localStorage.setItem(XRAY_HISTORY_KEY, JSON.stringify(xrayHistory.slice(0, 40))); } catch (e) {}
   }
+  function xrayLoadRoles() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(XRAY_ROLES_KEY) || "null"); } catch (e) {}
+    // an empty saved list means every role was deleted on purpose, so keep it empty
+    xrayRoles = Array.isArray(saved)
+      ? saved.map(str).filter(function (r) { return r; })
+      : XRAY_DEFAULT_ROLES.slice();
+  }
+  function xraySaveRoles() { try { localStorage.setItem(XRAY_ROLES_KEY, JSON.stringify(xrayRoles)); } catch (e) {} }
+
+  function xrayChevronIcon() {
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    var p = document.createElementNS(NS, "path");
+    p.setAttribute("d", "M6 9l6 6 6-6");
+    svg.appendChild(p);
+    return svg;
+  }
+  // three dots stacked top to bottom
+  function xrayKebabIcon() {
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "currentColor");
+    [5, 12, 19].forEach(function (cy) {
+      var c = document.createElementNS(NS, "circle");
+      c.setAttribute("cx", "12");
+      c.setAttribute("cy", String(cy));
+      c.setAttribute("r", "1.9");
+      svg.appendChild(c);
+    });
+    return svg;
+  }
+  // a 3-dot button that opens the little Edit / Delete menu below its row
+  function xrayKebabButton(name, isOpen, onToggle) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "xray-kebab" + (isOpen ? " open" : "");
+    b.setAttribute("aria-label", "More options for " + name);
+    b.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    b.appendChild(xrayKebabIcon());
+    b.addEventListener("click", function (e) { e.stopPropagation(); onToggle(); });
+    return b;
+  }
+  function xrayActionMenu(onEdit, onDelete) {
+    var menu = document.createElement("div");
+    menu.className = "xray-menu";
+    menu.addEventListener("click", function (e) { e.stopPropagation(); });
+    var edit = document.createElement("button");
+    edit.type = "button";
+    edit.textContent = "Edit";
+    edit.addEventListener("click", onEdit);
+    menu.appendChild(edit);
+    if (onDelete) {
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "danger";
+      del.textContent = "Delete";
+      del.addEventListener("click", onDelete);
+      menu.appendChild(del);
+    }
+    return menu;
+  }
+  // rebuilding a list resets its scroll, so put it back and keep the open menu on screen
+  function xrayKeepInView(box, el) {
+    if (!box || !el) return;
+    var top = el.offsetTop, bottom = top + el.offsetHeight;
+    if (bottom > box.scrollTop + box.clientHeight) box.scrollTop = bottom - box.clientHeight;
+    else if (top < box.scrollTop) box.scrollTop = top;
+  }
+  // inline "rename" row; onSave(text) decides for itself whether to accept and close
+  function xrayInlineEdit(value, onSave, onCancel) {
+    var wrap = document.createElement("div");
+    wrap.className = "xray-inline-edit";
+    wrap.addEventListener("click", function (e) { e.stopPropagation(); });
+    var inp = document.createElement("input");
+    inp.type = "text";
+    inp.value = value;
+    inp.setAttribute("aria-label", "Edit this entry");
+    var save = document.createElement("button");
+    save.type = "button"; save.className = "btn btn-small btn-primary"; save.textContent = "Save";
+    var cancel = document.createElement("button");
+    cancel.type = "button"; cancel.className = "btn btn-small"; cancel.textContent = "Cancel";
+    function commit() { onSave(str(inp.value)); }
+    save.addEventListener("click", commit);
+    cancel.addEventListener("click", onCancel);
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); commit(); }
+      else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onCancel(); }
+    });
+    wrap.appendChild(inp);
+    wrap.appendChild(save);
+    wrap.appendChild(cancel);
+    return wrap;
+  }
 
   function xrayFieldLabels(template) {
     var out = [], re = /"([^"]*)"/g, m;
@@ -1213,10 +1696,20 @@ const FIREBASE_CONFIG = {
     xrayMethodText.textContent = xrayCurrentTemplate() || "Add a search pattern below";
   }
 
+  // the "Role" field gets the saved-roles dropdown; every other field stays a text box
+  function xrayIsRoleField(label) { return /^(role|job role|job title)$/i.test(str(label)); }
+
   function xrayRenderFields() {
     var labels = xrayFieldLabels(xrayCurrentTemplate());
     xrayFieldsEl.innerHTML = "";
+    xrayRolePicker = null;
+    xrayRoleMenuAt = -1;
+    xrayRoleEditAt = -1;
     labels.forEach(function (label) {
+      if (xrayIsRoleField(label) && !xrayRolePicker) {
+        xrayFieldsEl.appendChild(xrayBuildRolePicker(label));
+        return;
+      }
       var inp = document.createElement("input");
       inp.type = "text";
       inp.placeholder = label;
@@ -1229,6 +1722,274 @@ const FIREBASE_CONFIG = {
       xrayFieldsEl.appendChild(inp);
     });
     xrayRenderResult();
+  }
+
+  /* ---------- the role dropdown ---------- */
+  function xrayRoleIndexOf(val) {
+    var v = str(val).toLowerCase();
+    if (!v) return -1;
+    for (var i = 0; i < xrayRoles.length; i++) {
+      if (str(xrayRoles[i]).toLowerCase() === v) return i;
+    }
+    return -1;
+  }
+
+  function xrayBuildRolePicker(label) {
+    var wrap = document.createElement("div");
+    wrap.className = "xray-role";
+
+    var anchor = document.createElement("div");
+    anchor.className = "xray-role-anchor";
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "xray-role-btn";
+    btn.setAttribute("aria-haspopup", "true");
+    btn.setAttribute("aria-expanded", "false");
+    btn.setAttribute("aria-label", label);
+    var spacer = document.createElement("span");
+    spacer.className = "sp";
+    var btnText = document.createElement("span");
+    btnText.className = "lab";
+    btn.appendChild(spacer);
+    btn.appendChild(btnText);
+    btn.appendChild(xrayChevronIcon());
+
+    var dd = document.createElement("div");
+    dd.className = "xray-role-dd";
+    dd.hidden = true;
+    var list = document.createElement("div");
+    dd.appendChild(list);
+
+    var addRow = document.createElement("div");
+    addRow.className = "xray-dd-add";
+    var addInput = document.createElement("input");
+    addInput.type = "text";
+    addInput.placeholder = "Add a role";
+    addInput.setAttribute("aria-label", "Add a role");
+    var addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.className = "btn btn-small btn-primary";
+    addBtn.textContent = "Add";
+    addRow.appendChild(addInput);
+    addRow.appendChild(addBtn);
+    dd.appendChild(addRow);
+
+    anchor.appendChild(btn);
+    anchor.appendChild(dd);
+
+    var customEl = document.createElement("input");
+    customEl.type = "text";
+    customEl.className = "xray-role-custom";
+    customEl.placeholder = "Type the role yourself";
+    customEl.setAttribute("aria-label", "Custom role");
+    customEl.hidden = true;
+
+    wrap.appendChild(anchor);
+    wrap.appendChild(customEl);
+
+    xrayRolePicker = {
+      label: label, btn: btn, btnText: btnText,
+      dd: dd, list: list, customEl: customEl
+    };
+
+    if (xrayRoleCustom) customEl.value = str(xrayValues[label]);
+
+    function addRole() {
+      var val = str(addInput.value);
+      if (!val) return;
+      var at = xrayRoleIndexOf(val);
+      if (at === -1) {
+        xrayRoles.push(val);
+        xraySaveRoles();
+        toast("Role added");
+      } else {
+        // already there, maybe typed in a different case — pick the saved spelling
+        val = xrayRoles[at];
+        toast("That role is saved already");
+      }
+      addInput.value = "";
+      xrayPickRole(val);
+    }
+    addBtn.addEventListener("click", function (e) { e.stopPropagation(); addRole(); });
+    addInput.addEventListener("click", function (e) { e.stopPropagation(); });
+    addInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); addRole(); }
+    });
+
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (dd.hidden) xrayOpenRoleDd(); else xrayCloseRoleDd();
+    });
+    customEl.addEventListener("input", function () {
+      xrayValues[label] = customEl.value;
+      xrayRenderRoleButton();
+    });
+
+    xrayRenderRoleButton();
+    xrayRenderRoleList();
+    return wrap;
+  }
+
+  function xrayRenderRoleButton() {
+    var p = xrayRolePicker;
+    if (!p) return;
+    var val = str(xrayValues[p.label]);
+    p.btnText.textContent = xrayRoleCustom ? "Custom" : (val || p.label);
+    p.btn.classList.toggle("placeholder", xrayRoleCustom || !val);
+    p.customEl.hidden = !xrayRoleCustom;
+    xrayRenderResult();
+  }
+
+  // pick a saved role (also used right after adding one)
+  function xrayPickRole(role) {
+    var p = xrayRolePicker;
+    if (!p) return;
+    xrayRoleCustom = false;
+    xrayValues[p.label] = role;
+    xrayRoleMenuAt = -1;
+    xrayRoleEditAt = -1;
+    xrayRenderRoleButton();
+    xrayRenderRoleList();
+  }
+
+  function xrayRoleOption(text, isActive, onPick) {
+    var row = document.createElement("div");
+    row.className = "xray-dd-item plain" + (isActive ? " active" : "");
+    var span = document.createElement("span");
+    span.textContent = text;
+    row.appendChild(span);
+    row.addEventListener("click", onPick);
+    return row;
+  }
+
+  function xrayRenderRoleList() {
+    var p = xrayRolePicker;
+    if (!p) return;
+    var listEl = p.list;
+    var keepScroll = p.dd.scrollTop;
+    var openEl = null;
+    listEl.innerHTML = "";
+    var current = str(xrayValues[p.label]);
+
+    listEl.appendChild(xrayRoleOption("Any role \u2014 leave blank", !xrayRoleCustom && !current, function () {
+      xrayRoleCustom = false;
+      xrayValues[p.label] = "";
+      xrayCloseRoleDd();
+      xrayRenderRoleButton();
+      xrayRenderRoleList();
+    }));
+
+    if (!xrayRoles.length) {
+      var empty = document.createElement("div");
+      empty.className = "xray-dd-empty";
+      empty.textContent = "No roles saved \u2014 add one below.";
+      listEl.appendChild(empty);
+    }
+
+    xrayRoles.forEach(function (role, i) {
+      if (xrayRoleEditAt === i) {
+        openEl = listEl.appendChild(xrayInlineEdit(role, function (val) {
+          if (!val) { toast("Give the role a name"); return; }
+          var at = xrayRoleIndexOf(val);
+          if (at !== -1 && at !== i) { toast("That role is saved already"); return; }
+          var old = xrayRoles[i];
+          xrayRoles[i] = val;
+          xraySaveRoles();
+          if (!xrayRoleCustom && str(xrayValues[p.label]) === old) xrayValues[p.label] = val;
+          xrayRoleEditAt = -1;
+          xrayRenderRoleButton();
+          xrayRenderRoleList();
+          toast("Role updated");
+        }, function () {
+          xrayRoleEditAt = -1;
+          xrayRenderRoleList();
+        }));
+        return;
+      }
+
+      var row = document.createElement("div");
+      row.className = "xray-dd-item with-menu" +
+        (!xrayRoleCustom && current && current === role ? " active" : "");
+      var span = document.createElement("span");
+      span.textContent = role;
+      row.appendChild(span);
+      row.addEventListener("click", function () {
+        xrayCloseRoleDd();
+        xrayPickRole(role);
+      });
+      row.appendChild(xrayKebabButton(role, xrayRoleMenuAt === i, function () {
+        xrayRoleMenuAt = (xrayRoleMenuAt === i) ? -1 : i;
+        xrayRoleEditAt = -1;
+        xrayRenderRoleList();
+      }));
+      listEl.appendChild(row);
+
+      if (xrayRoleMenuAt === i) {
+        openEl = listEl.appendChild(xrayActionMenu(function () {
+          xrayRoleMenuAt = -1;
+          xrayRoleEditAt = i;
+          xrayRenderRoleList();
+          var inp = listEl.querySelector(".xray-inline-edit input");
+          if (inp) { inp.focus(); inp.select(); }
+        }, function () {
+          xrayRoleMenuAt = -1;
+          xrayRenderRoleList();
+          confirmDialog({
+            title: "Really delete this role?",
+            body: "\u201c" + role + "\u201d will be taken off your saved roles. This can\u2019t be undone.",
+            confirmLabel: "Delete",
+            onConfirm: function () { xrayDeleteRole(role); }
+          });
+        }));
+      }
+    });
+
+    listEl.appendChild(xrayRoleOption("Custom \u2014 type your own", xrayRoleCustom, function () {
+      xrayRoleCustom = true;
+      xrayValues[p.label] = str(p.customEl.value);
+      xrayCloseRoleDd();
+      xrayRenderRoleButton();
+      xrayRenderRoleList();
+      p.customEl.focus();
+    }));
+
+    p.dd.scrollTop = keepScroll;
+    xrayKeepInView(p.dd, openEl);
+  }
+
+  function xrayDeleteRole(role) {
+    var i = xrayRoleIndexOf(role);
+    if (i === -1) return;
+    xrayRoles.splice(i, 1);
+    xraySaveRoles();
+    var p = xrayRolePicker;
+    if (p && !xrayRoleCustom && str(xrayValues[p.label]) === role) xrayValues[p.label] = "";
+    xrayRoleMenuAt = -1;
+    xrayRoleEditAt = -1;
+    xrayRenderRoleButton();
+    xrayRenderRoleList();
+    toast("Role deleted");
+  }
+
+  function xrayOpenRoleDd() {
+    var p = xrayRolePicker;
+    if (!p) return;
+    xrayCloseMethodDd();
+    xrayCloseHistoryDd();
+    xrayRoleMenuAt = -1;
+    xrayRoleEditAt = -1;
+    xrayRenderRoleList();
+    p.dd.hidden = false;
+    p.btn.setAttribute("aria-expanded", "true");
+  }
+  function xrayCloseRoleDd() {
+    var p = xrayRolePicker;
+    if (!p) return;
+    xrayRoleMenuAt = -1;
+    xrayRoleEditAt = -1;
+    p.dd.hidden = true;
+    p.btn.setAttribute("aria-expanded", "false");
   }
 
   function xrayHasAnyValue() {
@@ -1245,6 +2006,8 @@ const FIREBASE_CONFIG = {
   }
 
   function xrayRenderMethodList() {
+    var keepScroll = xrayMethodDd.scrollTop;
+    var openEl = null;
     xrayMethodList.innerHTML = "";
     if (!xrayMethods.length) {
       var empty = document.createElement("div");
@@ -1254,8 +2017,30 @@ const FIREBASE_CONFIG = {
       return;
     }
     xrayMethods.forEach(function (m, i) {
+      if (xrayMethodEditAt === i) {
+        openEl = xrayMethodList.appendChild(xrayInlineEdit(m, function (val) {
+          if (!val) { toast("Give the pattern some text"); return; }
+          if (xrayFieldLabels(val).length === 0) {
+            toast('Wrap each field in quotes, like "Name"');
+            return;
+          }
+          var at = xrayMethods.indexOf(val);
+          if (at !== -1 && at !== i) { toast("That pattern is saved already"); return; }
+          xrayMethods[i] = val;
+          xrayMethodEditAt = -1;
+          xraySaveMethods();
+          xrayRenderMethodList(); xrayRenderMethodButton();
+          if (i === xraySelected) xrayRenderFields();
+          toast("Pattern updated");
+        }, function () {
+          xrayMethodEditAt = -1;
+          xrayRenderMethodList();
+        }));
+        return;
+      }
+
       var row = document.createElement("div");
-      row.className = "xray-dd-item" + (i === xraySelected ? " active" : "");
+      row.className = "xray-dd-item with-menu" + (i === xraySelected ? " active" : "");
       var span = document.createElement("span");
       span.textContent = m;
       row.appendChild(span);
@@ -1267,24 +2052,47 @@ const FIREBASE_CONFIG = {
         xrayRenderMethodList();
         xrayRenderFields();
       });
-      if (xrayMethods.length > 1) {
-        var rm = document.createElement("button");
-        rm.type = "button";
-        rm.className = "xray-dd-remove";
-        rm.setAttribute("aria-label", "Remove this pattern");
-        rm.textContent = "\u00d7";
-        rm.addEventListener("click", function (e) {
-          e.stopPropagation();
-          xrayMethods.splice(i, 1);
-          if (xraySelected >= xrayMethods.length) xraySelected = xrayMethods.length - 1;
-          xraySaveMethods(); xraySaveSelected();
-          xrayRenderMethodList(); xrayRenderMethodButton(); xrayRenderFields();
-          toast("Pattern removed");
-        });
-        row.appendChild(rm);
-      }
+      row.appendChild(xrayKebabButton(m, xrayMethodMenuAt === i, function () {
+        xrayMethodMenuAt = (xrayMethodMenuAt === i) ? -1 : i;
+        xrayMethodEditAt = -1;
+        xrayRenderMethodList();
+      }));
       xrayMethodList.appendChild(row);
+
+      if (xrayMethodMenuAt === i) {
+        openEl = xrayMethodList.appendChild(xrayActionMenu(function () {
+          xrayMethodMenuAt = -1;
+          xrayMethodEditAt = i;
+          xrayRenderMethodList();
+          var inp = xrayMethodList.querySelector(".xray-inline-edit input");
+          if (inp) { inp.focus(); inp.select(); }
+        }, xrayMethods.length > 1 ? function () {
+          xrayMethodMenuAt = -1;
+          xrayRenderMethodList();
+          confirmDialog({
+            title: "Really delete this pattern?",
+            body: "\u201c" + m + "\u201d will be taken off your saved patterns. This can\u2019t be undone.",
+            confirmLabel: "Delete",
+            onConfirm: function () { xrayDeleteMethod(m); }
+          });
+        } : null));
+      }
     });
+
+    xrayMethodDd.scrollTop = keepScroll;
+    xrayKeepInView(xrayMethodDd, openEl);
+  }
+
+  function xrayDeleteMethod(pattern) {
+    var i = xrayMethods.indexOf(pattern);
+    if (i === -1 || xrayMethods.length <= 1) return;
+    xrayMethods.splice(i, 1);
+    if (xraySelected >= xrayMethods.length) xraySelected = xrayMethods.length - 1;
+    xrayMethodMenuAt = -1;
+    xrayMethodEditAt = -1;
+    xraySaveMethods(); xraySaveSelected();
+    xrayRenderMethodList(); xrayRenderMethodButton(); xrayRenderFields();
+    toast("Pattern deleted");
   }
 
   function xrayAddMethod() {
@@ -1297,6 +2105,8 @@ const FIREBASE_CONFIG = {
     var idx = xrayMethods.indexOf(val);
     if (idx === -1) { xrayMethods.push(val); idx = xrayMethods.length - 1; }
     xraySelected = idx;
+    xrayMethodMenuAt = -1;
+    xrayMethodEditAt = -1;
     xrayNewMethodEl.value = "";
     xraySaveMethods(); xraySaveSelected();
     xrayRenderMethodList(); xrayRenderMethodButton(); xrayRenderFields();
@@ -1305,15 +2115,22 @@ const FIREBASE_CONFIG = {
 
   function xrayOpenMethodDd() {
     xrayCloseHistoryDd();
+    xrayCloseRoleDd();
+    xrayMethodMenuAt = -1;
+    xrayMethodEditAt = -1;
+    xrayRenderMethodList();
     xrayMethodDd.hidden = false;
     xrayMethodBtn.setAttribute("aria-expanded", "true");
   }
   function xrayCloseMethodDd() {
+    xrayMethodMenuAt = -1;
+    xrayMethodEditAt = -1;
     xrayMethodDd.hidden = true;
     xrayMethodBtn.setAttribute("aria-expanded", "false");
   }
   function xrayOpenHistoryDd() {
     xrayCloseMethodDd();
+    xrayCloseRoleDd();
     xrayRenderHistory();
     xrayHistoryDd.hidden = false;
     xrayHistoryBtn.setAttribute("aria-expanded", "true");
@@ -1369,6 +2186,7 @@ const FIREBASE_CONFIG = {
 
   function initXray() {
     xrayLoadMethods();
+    xrayLoadRoles();
     xrayLoadHistory();
     xrayRenderMethodButton();
     xrayRenderMethodList();
@@ -1393,9 +2211,11 @@ const FIREBASE_CONFIG = {
     document.addEventListener("click", function (e) {
       if (!xrayMethodDd.hidden && !xrayMethodBtn.contains(e.target) && !xrayMethodDd.contains(e.target)) xrayCloseMethodDd();
       if (!xrayHistoryDd.hidden && !xrayHistoryBtn.contains(e.target) && !xrayHistoryDd.contains(e.target)) xrayCloseHistoryDd();
+      var p = xrayRolePicker;
+      if (p && !p.dd.hidden && !p.btn.contains(e.target) && !p.dd.contains(e.target)) xrayCloseRoleDd();
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { xrayCloseMethodDd(); xrayCloseHistoryDd(); }
+      if (e.key === "Escape") { xrayCloseMethodDd(); xrayCloseHistoryDd(); xrayCloseRoleDd(); }
     });
   }
   initXray();
@@ -1423,6 +2243,8 @@ const FIREBASE_CONFIG = {
       };
       setNote(null);
       fsMod.onSnapshot(docRef, function (snap) {
+        // a snapshot arriving proves the database is reachable and readable
+        setNote("Synced with the cloud. Every device that opens this page shows the same list.");
         if (snap.metadata && snap.metadata.hasPendingWrites) return;
         if (snap.exists()) {
           var data = snap.data() || {};
