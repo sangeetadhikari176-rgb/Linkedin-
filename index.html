@@ -386,6 +386,37 @@
   .xray-inline-edit { display: flex; gap: 6px; padding: 4px 4px 8px; }
   .xray-inline-edit input { flex: 1 1 auto; min-width: 0; font-size: 13px; }
 
+  /* multi-role: checkbox on every role row */
+  .xray-cb { flex: 0 0 auto; width: 16px; height: 16px; margin: 0; accent-color: var(--accent); pointer-events: none; }
+
+  /* multi-role search: small box + big button, each opens its own panel below */
+  .xray-result[hidden], .xray-multi[hidden], .xray-multi-panel[hidden] { display: none !important; }
+  .xray-multi { display: flex; flex-direction: column; gap: 8px; }
+  .xray-multi-row { display: flex; gap: 8px; align-items: stretch; }
+  .xray-multi-small {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
+    font: inherit; font-size: 13px; font-weight: 500; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 12px; cursor: pointer;
+  }
+  .xray-multi-small:hover { border-color: var(--accent); }
+  .xray-multi-big {
+    flex: 1 1 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    font: inherit; font-size: 14px; font-weight: 500; text-align: left;
+    background: var(--accent); color: var(--on-accent);
+    border: 1px solid var(--accent); border-radius: 8px;
+    padding: 12px 15px; cursor: pointer;
+  }
+  .xray-multi-big:hover { background: var(--accent-2); border-color: var(--accent-2); }
+  .xray-multi-small svg, .xray-multi-big svg { width: 15px; height: 15px; flex: 0 0 auto; transition: transform .15s ease; }
+  .xray-multi-small[aria-expanded="true"] svg, .xray-multi-big[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .xray-multi-panel { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 6px; }
+  .xray-multi-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .xray-multi-item:hover { background: var(--line-soft); }
+  .xray-multi-item span { flex: 1 1 auto; overflow-wrap: anywhere; }
+  .xray-multi-item svg { width: 14px; height: 14px; flex: 0 0 auto; color: var(--ink-soft); }
+  .xray-multi-panel .xray-result { margin: 0; }
+
   .modal {
     position: fixed; inset: 0; z-index: 30;
     display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -468,6 +499,26 @@
     <div class="xray-result" id="xrayResult" role="button" tabindex="0">
       <span id="xrayResultText"></span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+    </div>
+
+    <div class="xray-multi" id="xrayMulti" hidden>
+      <div class="xray-multi-row">
+        <button type="button" class="xray-multi-small" id="xrayListBtn" aria-expanded="false">
+          <span id="xrayListBtnText">Each role</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <button type="button" class="xray-multi-big" id="xrayAllBtn" aria-expanded="false">
+          <span id="xrayAllBtnText">All roles in separate tabs</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="xray-multi-panel" id="xrayListPanel" hidden></div>
+      <div class="xray-multi-panel" id="xrayAllPanel" hidden>
+        <div class="xray-result" id="xrayAllGo" role="button" tabindex="0">
+          <span id="xrayAllGoText"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </div>
+      </div>
     </div>
 
     <div class="xray-history">
@@ -618,6 +669,8 @@ const FIREBASE_CONFIG = {
   var items = [];
   var editing = null;          // { id: <itemId>|null, after: <itemId>|null }
   var cloud = null;            // { docRef, setDoc } once Firebase is ready
+  var cloudXray = null;         // { docRef, setDoc } for xray-data doc
+  var xrayCloudPending = false; // true while waiting for xray cloud snapshot
   var writeChain = Promise.resolve();
   var pendingRemote = null;
   var localDirty = false;
@@ -1527,6 +1580,15 @@ const FIREBASE_CONFIG = {
   var xrayResultText   = document.getElementById("xrayResultText");
   var xrayHistoryBtn   = document.getElementById("xrayHistoryBtn");
   var xrayHistoryDd    = document.getElementById("xrayHistoryDd");
+  var xrayMultiEl      = document.getElementById("xrayMulti");
+  var xrayListBtn      = document.getElementById("xrayListBtn");
+  var xrayListBtnText  = document.getElementById("xrayListBtnText");
+  var xrayAllBtn       = document.getElementById("xrayAllBtn");
+  var xrayAllBtnText   = document.getElementById("xrayAllBtnText");
+  var xrayListPanel    = document.getElementById("xrayListPanel");
+  var xrayAllPanel     = document.getElementById("xrayAllPanel");
+  var xrayAllGo        = document.getElementById("xrayAllGo");
+  var xrayAllGoText    = document.getElementById("xrayAllGoText");
 
   var XRAY_ROLES_KEY = "xray-roles-v1";
   var XRAY_DEFAULT_ROLES = [
@@ -1554,6 +1616,7 @@ const FIREBASE_CONFIG = {
   var xrayMethodEditAt = -1;  // pattern being renamed
 
   var xrayRoles      = [];    // saved roles for the "Role" field
+  var xrayRolesSel   = [];    // roles ticked in the dropdown (can be several)
   var xrayRoleCustom = false; // true while "Custom" is picked
   var xrayRoleMenuAt = -1;    // role whose 3-dot menu is open
   var xrayRoleEditAt = -1;    // role being renamed
@@ -1567,15 +1630,43 @@ const FIREBASE_CONFIG = {
     try { idx = parseInt(localStorage.getItem(XRAY_SELECTED_KEY), 10); } catch (e) {}
     xraySelected = (idx >= 0 && idx < xrayMethods.length) ? idx : 0;
   }
-  function xraySaveMethods()  { try { localStorage.setItem(XRAY_METHODS_KEY, JSON.stringify(xrayMethods)); } catch (e) {} }
+  function xraySaveMethods() {
+    try { localStorage.setItem(XRAY_METHODS_KEY, JSON.stringify(xrayMethods)); } catch (e) {}
+    if (cloud && cloudXray) {
+      xrayCloudPending = true;
+      cloudXray.setDoc(cloudXray.docRef, {
+        methods: xrayMethods,
+        selected: xraySelected,
+        roles: xrayRoles,
+        history: xrayHistory.slice(0, 40)
+      }).catch(function () { xrayCloudPending = false; });
+    }
+  }
   function xraySaveSelected() { try { localStorage.setItem(XRAY_SELECTED_KEY, String(xraySelected)); } catch (e) {} }
   function xrayLoadHistory() {
     try { xrayHistory = JSON.parse(localStorage.getItem(XRAY_HISTORY_KEY) || "[]"); }
     catch (e) { xrayHistory = []; }
     if (!Array.isArray(xrayHistory)) xrayHistory = [];
   }
+  function xrayUpdateFromCloud(data) {
+    if (!data) return;
+    if (Array.isArray(data.methods) && data.methods.length) xrayMethods = data.methods;
+    if (typeof data.selected === "number" && data.selected >= 0 && data.selected < xrayMethods.length) xraySelected = data.selected;
+    if (Array.isArray(data.roles)) xrayRoles = data.roles;
+    if (Array.isArray(data.history)) xrayHistory = data.history;
+    xrayRenderMethodButton(); xrayRenderMethodList(); xrayRenderFields();
+  }
   function xraySaveHistory() {
     try { localStorage.setItem(XRAY_HISTORY_KEY, JSON.stringify(xrayHistory.slice(0, 40))); } catch (e) {}
+    if (cloud && cloudXray && !xrayCloudPending) {
+      xrayCloudPending = true;
+      cloudXray.setDoc(cloudXray.docRef, {
+        methods: xrayMethods,
+        selected: xraySelected,
+        roles: xrayRoles,
+        history: xrayHistory.slice(0, 40)
+      }).catch(function () { xrayCloudPending = false; });
+    }
   }
   function xrayLoadRoles() {
     var saved = null;
@@ -1585,7 +1676,18 @@ const FIREBASE_CONFIG = {
       ? saved.map(str).filter(function (r) { return r; })
       : XRAY_DEFAULT_ROLES.slice();
   }
-  function xraySaveRoles() { try { localStorage.setItem(XRAY_ROLES_KEY, JSON.stringify(xrayRoles)); } catch (e) {} }
+  function xraySaveRoles() {
+    try { localStorage.setItem(XRAY_ROLES_KEY, JSON.stringify(xrayRoles)); } catch (e) {}
+    if (cloud && cloudXray && !xrayCloudPending) {
+      xrayCloudPending = true;
+      cloudXray.setDoc(cloudXray.docRef, {
+        methods: xrayMethods,
+        selected: xraySelected,
+        roles: xrayRoles,
+        history: xrayHistory.slice(0, 40)
+      }).catch(function () { xrayCloudPending = false; });
+    }
+  }
 
   function xrayChevronIcon() {
     var NS = "http://www.w3.org/2000/svg";
@@ -1685,9 +1787,9 @@ const FIREBASE_CONFIG = {
     return out;
   }
   function xrayCurrentTemplate() { return xrayMethods[xraySelected] || ""; }
-  function xrayBuildQuery() {
+  function xrayBuildQuery(ov) {
     return xrayCurrentTemplate().replace(/"([^"]*)"/g, function (whole, label) {
-      var val = str(xrayValues[label]);
+      var val = (ov && ov.label === label) ? str(ov.value) : str(xrayValues[label]);
       return val ? ('"' + val.replace(/"/g, "") + '"') : "";
     }).replace(/\s{2,}/g, " ").trim();
   }
@@ -1834,9 +1936,11 @@ const FIREBASE_CONFIG = {
   function xrayRenderRoleButton() {
     var p = xrayRolePicker;
     if (!p) return;
-    var val = str(xrayValues[p.label]);
-    p.btnText.textContent = xrayRoleCustom ? "Custom" : (val || p.label);
-    p.btn.classList.toggle("placeholder", xrayRoleCustom || !val);
+    xraySyncRoleValue();
+    var n = xrayRolesSel.length;
+    var txt = xrayRoleCustom ? "Custom" : (n === 0 ? p.label : (n === 1 ? xrayRolesSel[0] : n + " roles selected"));
+    p.btnText.textContent = txt;
+    p.btn.classList.toggle("placeholder", xrayRoleCustom || n === 0);
     p.customEl.hidden = !xrayRoleCustom;
     xrayRenderResult();
   }
@@ -1846,11 +1950,38 @@ const FIREBASE_CONFIG = {
     var p = xrayRolePicker;
     if (!p) return;
     xrayRoleCustom = false;
-    xrayValues[p.label] = role;
+    if (xrayRolesSel.indexOf(role) === -1) xrayRolesSel.push(role);
+    xrayNormalizeSel();
     xrayRoleMenuAt = -1;
     xrayRoleEditAt = -1;
     xrayRenderRoleButton();
     xrayRenderRoleList();
+  }
+
+  // tick / untick one role (the dropdown stays open so you can tick several)
+  function xrayToggleRole(role) {
+    var i = xrayRolesSel.indexOf(role);
+    if (i === -1) xrayRolesSel.push(role); else xrayRolesSel.splice(i, 1);
+    xrayRoleCustom = false;
+    xrayNormalizeSel();
+    xrayRoleMenuAt = -1;
+    xrayRoleEditAt = -1;
+    xrayRenderRoleButton();
+    xrayRenderRoleList();
+  }
+  // keep ticked roles in the same order as the saved list, and drop any that no longer exist
+  function xrayNormalizeSel() {
+    xrayRolesSel = xrayRoles.filter(function (r) { return xrayRolesSel.indexOf(r) !== -1; });
+  }
+  // one ticked role behaves exactly like the old single pick; several are handled by the multi panel
+  function xraySyncRoleValue() {
+    var p = xrayRolePicker;
+    if (!p || xrayRoleCustom) return;
+    xrayNormalizeSel();
+    xrayValues[p.label] = xrayRolesSel.length === 1 ? xrayRolesSel[0] : "";
+  }
+  function xrayMultiActive() {
+    return !!xrayRolePicker && !xrayRoleCustom && xrayRolesSel.length >= 2;
   }
 
   function xrayRoleOption(text, isActive, onPick) {
@@ -1872,8 +2003,9 @@ const FIREBASE_CONFIG = {
     listEl.innerHTML = "";
     var current = str(xrayValues[p.label]);
 
-    listEl.appendChild(xrayRoleOption("Any role \u2014 leave blank", !xrayRoleCustom && !current, function () {
+    listEl.appendChild(xrayRoleOption("Any role \u2014 leave blank", !xrayRoleCustom && !xrayRolesSel.length, function () {
       xrayRoleCustom = false;
+      xrayRolesSel = [];
       xrayValues[p.label] = "";
       xrayCloseRoleDd();
       xrayRenderRoleButton();
@@ -1896,7 +2028,8 @@ const FIREBASE_CONFIG = {
           var old = xrayRoles[i];
           xrayRoles[i] = val;
           xraySaveRoles();
-          if (!xrayRoleCustom && str(xrayValues[p.label]) === old) xrayValues[p.label] = val;
+          var si = xrayRolesSel.indexOf(old);
+          if (si !== -1) xrayRolesSel[si] = val;
           xrayRoleEditAt = -1;
           xrayRenderRoleButton();
           xrayRenderRoleList();
@@ -1909,14 +2042,20 @@ const FIREBASE_CONFIG = {
       }
 
       var row = document.createElement("div");
-      row.className = "xray-dd-item with-menu" +
-        (!xrayRoleCustom && current && current === role ? " active" : "");
+      var isOn = !xrayRoleCustom && xrayRolesSel.indexOf(role) !== -1;
+      row.className = "xray-dd-item with-menu" + (isOn ? " active" : "");
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.className = "xray-cb";
+      cb.checked = isOn;
+      cb.tabIndex = -1;
+      cb.setAttribute("aria-label", "Select " + role);
+      row.appendChild(cb);
       var span = document.createElement("span");
       span.textContent = role;
       row.appendChild(span);
       row.addEventListener("click", function () {
-        xrayCloseRoleDd();
-        xrayPickRole(role);
+        xrayToggleRole(role);
       });
       row.appendChild(xrayKebabButton(role, xrayRoleMenuAt === i, function () {
         xrayRoleMenuAt = (xrayRoleMenuAt === i) ? -1 : i;
@@ -1947,6 +2086,7 @@ const FIREBASE_CONFIG = {
 
     listEl.appendChild(xrayRoleOption("Custom \u2014 type your own", xrayRoleCustom, function () {
       xrayRoleCustom = true;
+      xrayRolesSel = [];
       xrayValues[p.label] = str(p.customEl.value);
       xrayCloseRoleDd();
       xrayRenderRoleButton();
@@ -1964,7 +2104,8 @@ const FIREBASE_CONFIG = {
     xrayRoles.splice(i, 1);
     xraySaveRoles();
     var p = xrayRolePicker;
-    if (p && !xrayRoleCustom && str(xrayValues[p.label]) === role) xrayValues[p.label] = "";
+    var di = xrayRolesSel.indexOf(role);
+    if (di !== -1) xrayRolesSel.splice(di, 1);
     xrayRoleMenuAt = -1;
     xrayRoleEditAt = -1;
     xrayRenderRoleButton();
@@ -1993,6 +2134,7 @@ const FIREBASE_CONFIG = {
   }
 
   function xrayHasAnyValue() {
+    if (xrayMultiActive()) return true;
     var labels = xrayFieldLabels(xrayCurrentTemplate());
     for (var i = 0; i < labels.length; i++) {
       if (str(xrayValues[labels[i]])) return true;
@@ -2000,9 +2142,75 @@ const FIREBASE_CONFIG = {
     return false;
   }
   function xrayRenderResult() {
+    var multi = xrayMultiActive();
     var filled = xrayHasAnyValue();
+    // with 2+ roles ticked the single search bar steps aside and the multi panel takes over
+    xrayResultEl.hidden = multi;
     xrayResultText.textContent = filled ? xrayBuildQuery() : "Fill in a field above to build your search";
     xrayResultEl.classList.toggle("disabled", !filled);
+    xrayRenderMulti();
+  }
+
+  /* ---------- several roles at once ---------- */
+  function xrayRoleQueries() {
+    var p = xrayRolePicker;
+    if (!p) return [];
+    return xrayRolesSel.map(function (role) {
+      var q = xrayBuildQuery({ label: p.label, value: role });
+      return { role: role, q: q, url: "https://www.google.com/search?q=" + encodeURIComponent(q) };
+    });
+  }
+  function xrayCloseMultiPanels() {
+    xrayListPanel.hidden = true;  xrayListBtn.setAttribute("aria-expanded", "false");
+    xrayAllPanel.hidden = true;   xrayAllBtn.setAttribute("aria-expanded", "false");
+  }
+  function xrayRenderMulti() {
+    var multi = xrayMultiActive();
+    xrayMultiEl.hidden = !multi;
+    if (!multi) { xrayCloseMultiPanels(); return; }
+    var qs = xrayRoleQueries();
+    xrayListBtnText.textContent = "Each role (" + qs.length + ")";
+    xrayAllBtnText.textContent = "All " + qs.length + " roles in separate tabs";
+    xrayAllGoText.textContent = "Open all " + qs.length + " searches, one tab per role";
+
+    xrayListPanel.innerHTML = "";
+    qs.forEach(function (it) {
+      var row = document.createElement("div");
+      row.className = "xray-multi-item";
+      row.setAttribute("role", "button");
+      row.tabIndex = 0;
+      var span = document.createElement("span");
+      span.textContent = it.q;
+      row.appendChild(span);
+      var NS = "http://www.w3.org/2000/svg";
+      var svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("fill", "none");
+      svg.setAttribute("stroke", "currentColor"); svg.setAttribute("stroke-width", "2");
+      svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round");
+      var path = document.createElementNS(NS, "path");
+      path.setAttribute("d", "M7 17L17 7M9 7h8v8");
+      svg.appendChild(path);
+      row.appendChild(svg);
+      function go() { xrayOpenMany([it]); }
+      row.addEventListener("click", go);
+      row.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+      });
+      xrayListPanel.appendChild(row);
+    });
+  }
+  // open each search in its own tab, and remember them in "Recent searches"
+  function xrayOpenMany(list) {
+    var blocked = 0;
+    list.forEach(function (it) {
+      var w = window.open(it.url, "_blank");
+      if (w) { try { w.opener = null; } catch (e) {} } else { blocked++; }
+      xrayHistory = xrayHistory.filter(function (h) { return h.q !== it.q; });
+      xrayHistory.unshift({ q: it.q, url: it.url, t: Date.now() });
+    });
+    if (xrayHistory.length > 40) xrayHistory.length = 40;
+    xraySaveHistory();
+    if (blocked) toast("Your browser blocked " + blocked + " tab" + (blocked > 1 ? "s" : "") + ". Allow pop-ups for this page and try again.");
   }
 
   function xrayRenderMethodList() {
@@ -2204,6 +2412,21 @@ const FIREBASE_CONFIG = {
     xrayResultEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); xrayRunSearch(); }
     });
+    xrayListBtn.addEventListener("click", function () {
+      var open = xrayListPanel.hidden;
+      xrayCloseMultiPanels();
+      if (open) { xrayListPanel.hidden = false; xrayListBtn.setAttribute("aria-expanded", "true"); }
+    });
+    xrayAllBtn.addEventListener("click", function () {
+      var open = xrayAllPanel.hidden;
+      xrayCloseMultiPanels();
+      if (open) { xrayAllPanel.hidden = false; xrayAllBtn.setAttribute("aria-expanded", "true"); }
+    });
+    function xrayRunAll() { xrayOpenMany(xrayRoleQueries()); }
+    xrayAllGo.addEventListener("click", xrayRunAll);
+    xrayAllGo.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); xrayRunAll(); }
+    });
     xrayHistoryBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       if (xrayHistoryDd.hidden) xrayOpenHistoryDd(); else xrayCloseHistoryDd();
@@ -2242,6 +2465,22 @@ const FIREBASE_CONFIG = {
         setDoc: function (ref, data) { return fsMod.setDoc(ref, data); }
       };
       setNote(null);
+      // also listen to xray data
+      var xrayDocRef = fsMod.doc(db, "xray-data", "settings");
+      cloudXray = { docRef: xrayDocRef, setDoc: fsMod.setDoc };
+      fsMod.onSnapshot(xrayDocRef, function (xsnap) {
+        xrayCloudPending = false;
+        if (xsnap.exists()) {
+          var xdata = xsnap.data();
+          if (!xsnap.metadata.hasPendingWrites) {
+            xrayUpdateFromCloud(xdata);
+            try { localStorage.setItem(XRAY_METHODS_KEY, JSON.stringify(xrayMethods)); } catch (e) {}
+            try { localStorage.setItem(XRAY_ROLES_KEY, JSON.stringify(xrayRoles)); } catch (e) {}
+            try { localStorage.setItem(XRAY_HISTORY_KEY, JSON.stringify(xrayHistory)); } catch (e) {}
+          }
+        }
+      });
+
       fsMod.onSnapshot(docRef, function (snap) {
         // a snapshot arriving proves the database is reachable and readable
         setNote("Synced with the cloud. Every device that opens this page shows the same list.");
@@ -2271,10 +2510,12 @@ const FIREBASE_CONFIG = {
         }
       }, function () {
         cloud = null;
+        cloudXray = null;
         setNote("Couldn't reach the cloud. Your data is being saved in this browser.");
       });
     }).catch(function () {
       cloud = null;
+      cloudXray = null;
       setNote("Cloud setup isn't working. Your data is being saved in this browser.");
     });
   } else {
